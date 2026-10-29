@@ -59,7 +59,7 @@
             "command": [
                 "npx",
                 "-y",
-                "@jkudish/jev-mcp"
+                "@jkudish/jev-mcp@0.12.0"
             ],
             "environment": {
                 "OPENROUTER_API_KEY": "{env:OPENROUTER_API_KEY}",
@@ -237,6 +237,7 @@
                     "options": {
                         "provider": {
                             "allow_fallbacks": true,
+                            "require_parameters": true,
                             "max_price": {
                                 "prompt": 0.15,
                                 "completion": 0.65
@@ -250,6 +251,7 @@
                     "options": {
                         "provider": {
                             "allow_fallbacks": true,
+                            "require_parameters": true,
                             "max_price": {
                                 "prompt": 0.15,
                                 "completion": 0.65
@@ -359,6 +361,7 @@
             "description": "Default primary coding mode (DeepSeek V4.1 Flash, low effort). Handles routine features, bug fixes, tests, and multi-file edits with clear contracts and usable verification. Escalate to @mid-surgeon or @deep-surgeon when architectural uncertainty, conflicting contracts, or difficult invariants justify it, and run a mandatory independent @reviewer (Terra) gate before completing substantive changes.",
             "mode": "primary",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "options": {
                 "reasoning": {
                     "effort": "low"
@@ -451,9 +454,10 @@
             }
         },
         "code-jev": {
-            "description": "Low-tier Jev-routed primary coding mode (jev-router-low, low effort hint) with native primary permissions and verified shell commands for clean A/B comparison against fixed-model Flash Code.",
+            "description": "Experimental Jev-routed primary coding profile (jev-router-low, low effort hint) with native primary permissions and verified shell commands for comparing end-to-end routed behavior (including generic client prompt/tool selection) against direct Flash Code.",
             "mode": "primary",
             "model": "openrouter/jev-router-low",
+            "variant": "low",
             "options": {
                 "reasoning": {
                     "effort": "low"
@@ -552,6 +556,7 @@
             "description": "Escalation fixed-model primary coding mode (GPT-6.1 Terra, medium effort) with native Code permissions, GPT system prompt, and apply_patch active for whole-session complex architecture or debugging.",
             "mode": "primary",
             "model": "openrouter/openai/gpt-6.1-terra",
+            "variant": "medium",
             "options": {
                 "reasoning": {
                     "effort": "medium"
@@ -649,6 +654,7 @@
         "plan": {
             "mode": "primary",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "high",
             "options": {
                 "reasoning": {
                     "effort": "high"
@@ -660,13 +666,15 @@
                     "explore": "allow",
                     "doc-summarizer": "allow",
                     "file-picker": "allow",
-                    "local-scout": "allow"
+                    "local-scout": "allow",
+                    "reviewer": "allow"
                 }
             }
         },
         "debug": {
             "mode": "primary",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "high",
             "options": {
                 "reasoning": {
                     "effort": "high"
@@ -761,6 +769,7 @@
         "ask": {
             "mode": "primary",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "options": {
                 "reasoning": {
                     "effort": "low"
@@ -772,6 +781,7 @@
         },
         "title": {
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "options": {
                 "reasoning": {
                     "effort": "low"
@@ -780,6 +790,7 @@
         },
         "summary": {
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "options": {
                 "reasoning": {
                     "effort": "low"
@@ -789,6 +800,7 @@
         "general": {
             "description": "General-purpose subagent (DeepSeek V4.1 Flash, low effort) for ordinary delegated research and multi-step implementation tasks. Returns review_required: true|false with reason, changed paths, and verification results.",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "options": {
                 "reasoning": {
                     "effort": "low"
@@ -905,6 +917,7 @@
         },
         "explore": {
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "steps": 10,
             "options": {
                 "reasoning": {
@@ -916,6 +929,7 @@
             "description": "Low-cost documentation, specification, Context7 library-doc, and web research summarizer (DeepSeek V4.1 Flash, low effort). Use from Code, Plan, or Debug when synthesizing external docs, PRDs, or long markdown specs so the parent session receives concise signatures, constraints, and citations without raw doc dumps.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "steps": 10,
             "options": {
                 "reasoning": {
@@ -967,6 +981,7 @@
             "description": "Fast read-only repository scout (DeepSeek V4.1 Flash, low effort) returning a structured path/symbol/contract inventory with verbatim signatures. Prefer native explore for general search; use file-picker when partitioning work across subagents.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "steps": 8,
             "options": {
                 "reasoning": {
@@ -1016,6 +1031,7 @@
             "description": "Default implementation subagent (DeepSeek V4.1 Flash, low effort) with native model-dependent prompting preserved for bounded features, routine bug fixes, API/UI wiring, tests, refactors, and straightforward multi-file changes that follow existing patterns. Stop and return evidence after two materially different attempts without progress or when contracts/scope conflict, and return review_required: true|false with reason, changed paths, and verification results.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "variant": "low",
             "steps": 25,
             "options": {
                 "reasoning": {
@@ -1135,6 +1151,7 @@
             "description": "Escalation implementation specialist (GPT-6.1 Terra, medium effort) with native GPT coding prompt and apply_patch intact. Escalate here from any cheap execution agent (code, general, debug, fast-worker) when the task brief or observed evidence identifies an unresolved invariant, conflicting cross-module contract, difficult failed hypothesis, or substantive design decision. A failed cheap attempt is not required when the need for stronger reasoning is already clear.",
             "mode": "subagent",
             "model": "openrouter/openai/gpt-6.1-terra",
+            "variant": "medium",
             "steps": 30,
             "options": {
                 "reasoning": {
@@ -1257,6 +1274,7 @@
             "description": "Highest-tier escalation specialist (Gemini 4 Argon, high effort) with native Gemini coding prompt intact. Reserve deliberately for subtle concurrency/race conditions, complex state-machine or security invariants, or escalations where Terra (@mid-surgeon / code-pinned) has stalled.",
             "mode": "subagent",
             "model": "openrouter/google/gemini-4-argon",
+            "variant": "high",
             "steps": 35,
             "options": {
                 "reasoning": {
@@ -1377,9 +1395,10 @@
             }
         },
         "reviewer": {
-            "description": "Independent read-only code reviewer (GPT-6.1 Terra, medium effort) with native model-family prompting preserved. Invoked by the primary agent after verification settles to audit substantive changes, public contracts, security/data/concurrency invariants, and failure scenarios using supplied diffs, verification output, and direct source reads.",
+            "description": "Independent read-only reviewer and architecture/plan critic (GPT-6.1 Terra, medium effort) with native model-family prompting preserved. Use from Plan for selective architecture/contract/migration/concurrency design critique, and from Code or Debug as a mandatory final review gate after verification settles on substantive changes.",
             "mode": "subagent",
             "model": "openrouter/openai/gpt-6.1-terra",
+            "variant": "medium",
             "steps": 20,
             "options": {
                 "reasoning": {
