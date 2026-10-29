@@ -282,7 +282,7 @@
                     }
                 },
                 "openai/gpt-6.1-terra": {
-                    "name": "GPT-6.1 Terra (Escalation Primary & Mid-Surgeon)",
+                    "name": "GPT-6.1 Terra (Escalation Primary, Reviewer & Mid-Surgeon)",
                     "id": "openai/gpt-6.1-terra",
                     "options": {
                         "provider": {
@@ -356,7 +356,7 @@
     },
     "agent": {
         "code": {
-            "description": "Default primary coding mode (DeepSeek V4.1 Flash, low effort). Handles routine features, bug fixes, tests, and multi-file edits with clear contracts and usable verification. Escalate to @mid-surgeon or @deep-surgeon when the task brief or observed evidence identifies an unresolved invariant, conflicting contract, difficult failed hypothesis, or substantive design decision.",
+            "description": "Default primary coding mode (DeepSeek V4.1 Flash, low effort). Handles routine features, bug fixes, tests, and multi-file edits with clear contracts and usable verification. Escalate to @mid-surgeon or @deep-surgeon when architectural uncertainty, conflicting contracts, or difficult invariants justify it, and run a mandatory independent @reviewer (Terra) gate before completing substantive changes.",
             "mode": "primary",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "options": {
@@ -787,7 +787,7 @@
             }
         },
         "general": {
-            "description": "General-purpose subagent (DeepSeek V4.1 Flash, low effort) for ordinary delegated research and multi-step implementation tasks.",
+            "description": "General-purpose subagent (DeepSeek V4.1 Flash, low effort) for ordinary delegated research and multi-step implementation tasks. Returns review_required: true|false with reason, changed paths, and verification results.",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "options": {
                 "reasoning": {
@@ -1013,7 +1013,7 @@
             }
         },
         "fast-worker": {
-            "description": "Default implementation subagent (DeepSeek V4.1 Flash, low effort) with native model-dependent prompting preserved for bounded features, routine bug fixes, API/UI wiring, tests, refactors, and straightforward multi-file changes that follow existing patterns. Stop and return evidence after two materially different attempts without progress or when contracts/scope conflict.",
+            "description": "Default implementation subagent (DeepSeek V4.1 Flash, low effort) with native model-dependent prompting preserved for bounded features, routine bug fixes, API/UI wiring, tests, refactors, and straightforward multi-file changes that follow existing patterns. Stop and return evidence after two materially different attempts without progress or when contracts/scope conflict, and return review_required: true|false with reason, changed paths, and verification results.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "steps": 25,
@@ -1374,6 +1374,50 @@
                     "shutdown*": "deny",
                     "reboot*": "deny"
                 }
+            }
+        },
+        "reviewer": {
+            "description": "Independent read-only code reviewer (GPT-6.1 Terra, medium effort) with native model-family prompting preserved. Invoked by the primary agent after verification settles to audit substantive changes, public contracts, security/data/concurrency invariants, and failure scenarios using supplied diffs, verification output, and direct source reads.",
+            "mode": "subagent",
+            "model": "openrouter/openai/gpt-6.1-terra",
+            "steps": 20,
+            "options": {
+                "reasoning": {
+                    "effort": "medium"
+                }
+            },
+            "permission": {
+                "*": "deny",
+                "read": {
+                    "*": "allow",
+                    "coverage/**": "deny",
+                    "*/coverage/**": "deny",
+                    ".next/**": "deny",
+                    "*/.next/**": "deny",
+                    ".nuxt/**": "deny",
+                    "*/.nuxt/**": "deny",
+                    ".turbo/**": "deny",
+                    "*/.turbo/**": "deny",
+                    "*.min.js": "deny",
+                    "*.min.css": "deny",
+                    "*.bundle.js": "deny",
+                    "*.map": "deny",
+                    ".env": "deny",
+                    ".env.*": "deny",
+                    "*/.env": "deny",
+                    "*/.env.*": "deny",
+                    ".env.example": "allow",
+                    "*/.env.example": "allow"
+                },
+                "external_directory": {
+                    "/tmp/**": "allow",
+                    "/private/tmp/**": "allow"
+                },
+                "glob": "allow",
+                "grep": "allow",
+                "list": "allow",
+                "semantic_search": "allow",
+                "skill": "allow"
             }
         },
         "local-scout": {
