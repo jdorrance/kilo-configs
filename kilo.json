@@ -1,0 +1,1018 @@
+{
+    "$schema": "https://app.kilo.ai/config.json",
+    "model": "openrouter/typesafe/jev-router",
+    "small_model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "memory_model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "subagent_depth": 1,
+    "reasoning_display": "preview",
+    "terminal_command_display": "collapsed",
+    "experimental": {
+        "batch_tool": true
+    },
+    "indexing": {
+        "enabled": true,
+        "provider": "openrouter",
+        "model": "openai/text-embedding-3-small",
+        "vectorStore": "lancedb",
+        "openrouter": {
+            "apiKey": "{env:OPENROUTER_API_KEY}"
+        },
+        "lancedb": {},
+        "searchMinScore": 0.4,
+        "searchMaxResults": 25,
+        "embeddingBatchSize": 60,
+        "scannerMaxBatchRetries": 3
+    },
+    "skills": {
+        "paths": [
+            "/Users/johndorrance/.config/kilo/skills"
+        ]
+    },
+    "mcp": {
+        "jev": {
+            "type": "local",
+            "command": [
+                "npx",
+                "-y",
+                "@jkudish/jev-mcp"
+            ],
+            "environment": {
+                "OPENROUTER_API_KEY": "{env:OPENROUTER_API_KEY}",
+                "JEV_PROVIDER": "openrouter"
+            },
+            "enabled": true
+        },
+        "context7": {
+            "type": "remote",
+            "url": "https://mcp.context7.com/mcp",
+            "enabled": true
+        }
+    },
+    "provider": {
+        "openrouter": {
+            "options": {
+                "apiKey": "{env:OPENROUTER_API_KEY}",
+                "setCacheKey": true
+            },
+            "models": {
+                "typesafe/jev-router": {
+                    "name": "Jev Router (Balanced Core Pool)",
+                    "id": "typesafe/jev-router",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1000000,
+                        "output": 32768
+                    },
+                    "headers": {
+                        "X-OpenRouter-Metadata": "enabled"
+                    },
+                    "options": {
+                        "cache_control": {
+                            "type": "ephemeral"
+                        },
+                        "provider": {
+                            "allow_fallbacks": true
+                        },
+                        "plugins": [
+                            {
+                                "id": "jev-router",
+                                "cost_tier": "medium",
+                                "models": [
+                                    "deepseek/deepseek-v4.1-flash",
+                                    "openai/gpt-6-luna",
+                                    "openai/gpt-6.1-terra",
+                                    "openai/gpt-6.1-sol",
+                                    "anthropic/claude-sonnet-5.5"
+                                ],
+                                "excluded_models": [
+                                    "openai/gpt-6-astra*",
+                                    "openai/gpt-5*",
+                                    "anthropic/claude-fable*",
+                                    "anthropic/claude-opus*"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "jev-router-low": {
+                    "name": "Jev Router (Low-Cost Fast)",
+                    "id": "typesafe/jev-router",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1000000,
+                        "output": 16384
+                    },
+                    "headers": {
+                        "X-OpenRouter-Metadata": "enabled"
+                    },
+                    "options": {
+                        "provider": {
+                            "allow_fallbacks": true
+                        },
+                        "plugins": [
+                            {
+                                "id": "jev-router",
+                                "cost_tier": "low",
+                                "models": [
+                                    "deepseek/deepseek-v4.1-flash",
+                                    "openai/gpt-6-luna",
+                                    "google/gemini-3.8-flash",
+                                    "openai/gpt-6.1-terra"
+                                ],
+                                "excluded_models": [
+                                    "openai/gpt-6-astra*",
+                                    "openai/gpt-6.1-sol*",
+                                    "openai/gpt-5*",
+                                    "anthropic/claude-*",
+                                    "google/gemini-4-argon*"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "jev-router-high": {
+                    "name": "Jev Router (High-Capability Plan & Debug)",
+                    "id": "typesafe/jev-router",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1000000,
+                        "output": 32768
+                    },
+                    "headers": {
+                        "X-OpenRouter-Metadata": "enabled"
+                    },
+                    "options": {
+                        "cache_control": {
+                            "type": "ephemeral"
+                        },
+                        "provider": {
+                            "allow_fallbacks": true
+                        },
+                        "plugins": [
+                            {
+                                "id": "jev-router",
+                                "cost_tier": "high",
+                                "models": [
+                                    "openai/gpt-6.1-terra",
+                                    "google/gemini-4-argon",
+                                    "openai/gpt-6.1-sol",
+                                    "anthropic/claude-sonnet-5.5"
+                                ],
+                                "excluded_models": [
+                                    "openai/gpt-6-astra*",
+                                    "openai/gpt-5*",
+                                    "anthropic/claude-fable*",
+                                    "anthropic/claude-opus*"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "deepseek/deepseek-v4.1-flash": {
+                    "name": "DeepSeek V4.1 Flash (Scout & Mechanical Worker)",
+                    "id": "deepseek/deepseek-v4.1-flash",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1048576,
+                        "output": 32768
+                    },
+                    "options": {
+                        "provider": {
+                            "allow_fallbacks": true
+                        },
+                        "models": [
+                            "deepseek/deepseek-v4.1-flash",
+                            "openai/gpt-6-luna",
+                            "google/gemini-3.8-flash"
+                        ]
+                    }
+                },
+                "openai/gpt-6-luna": {
+                    "name": "GPT-6 Luna (Fast Light Coding)",
+                    "id": "openai/gpt-6-luna",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1050000,
+                        "output": 32768
+                    },
+                    "options": {
+                        "provider": {
+                            "allow_fallbacks": true
+                        }
+                    }
+                },
+                "openai/gpt-6.1-terra": {
+                    "name": "GPT-6.1 Terra (Direct Implementation & Mid-Surgeon)",
+                    "id": "openai/gpt-6.1-terra",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1050000,
+                        "output": 32768
+                    },
+                    "options": {
+                        "provider": {
+                            "allow_fallbacks": true
+                        }
+                    }
+                },
+                "openai/gpt-6.1-sol": {
+                    "name": "GPT-6.1 Sol (Direct Flagship)",
+                    "id": "openai/gpt-6.1-sol",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1050000,
+                        "output": 32768
+                    },
+                    "options": {
+                        "provider": {
+                            "allow_fallbacks": true
+                        }
+                    }
+                },
+                "google/gemini-4-argon": {
+                    "name": "Gemini 4 Argon (Direct Deep Surgeon & Reasoning)",
+                    "id": "google/gemini-4-argon",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1048576,
+                        "output": 65536
+                    },
+                    "options": {
+                        "provider": {
+                            "allow_fallbacks": true
+                        },
+                        "models": [
+                            "google/gemini-4-argon",
+                            "openai/gpt-6.1-sol",
+                            "anthropic/claude-sonnet-5.5"
+                        ]
+                    }
+                },
+                "anthropic/claude-sonnet-5.5": {
+                    "name": "Claude Sonnet 5.5 (Direct Flagship, Auto-Cached)",
+                    "id": "anthropic/claude-sonnet-5.5",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1000000,
+                        "output": 32768
+                    },
+                    "options": {
+                        "cache_control": {
+                            "type": "ephemeral"
+                        },
+                        "provider": {
+                            "allow_fallbacks": true
+                        }
+                    }
+                },
+                "anthropic/claude-opus-5.5": {
+                    "name": "Claude Opus 5.5 (Manual Only - Strict Opus, Auto-Cached)",
+                    "id": "anthropic/claude-opus-5.5",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1000000,
+                        "output": 32768
+                    },
+                    "options": {
+                        "cache_control": {
+                            "type": "ephemeral"
+                        },
+                        "provider": {
+                            "allow_fallbacks": true
+                        }
+                    }
+                }
+            }
+        },
+        "ollama": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "Ollama (Local)",
+            "options": {
+                "baseURL": "http://localhost:11434/v1"
+            },
+            "models": {
+                "qwen3-coder:30b": {
+                    "name": "Qwen3 Coder 30B (Local Inference)",
+                    "tool_call": true,
+                    "limit": {
+                        "context": 32768,
+                        "output": 8192
+                    }
+                }
+            }
+        }
+    },
+    "agent": {
+        "code": {
+            "mode": "primary",
+            "model": "openrouter/typesafe/jev-router"
+        },
+        "plan": {
+            "mode": "primary",
+            "model": "openrouter/jev-router-high"
+        },
+        "debug": {
+            "mode": "primary",
+            "model": "openrouter/jev-router-high"
+        },
+        "ask": {
+            "mode": "primary",
+            "model": "openrouter/jev-router-low",
+            "permission": {
+                "edit": "deny",
+                "task": "deny",
+                "todowrite": "deny",
+                "bash": {
+                    "*": "deny",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "cat *": "allow",
+                    "head *": "allow",
+                    "tail *": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "du *": "allow",
+                    "df *": "allow",
+                    "tree": "allow",
+                    "tree *": "allow",
+                    "pwd": "allow",
+                    "realpath *": "allow",
+                    "dirname *": "allow",
+                    "basename *": "allow",
+                    "readlink *": "allow",
+                    "which *": "allow",
+                    "whereis *": "allow",
+                    "type *": "allow",
+                    "uname*": "allow",
+                    "date*": "allow",
+                    "find *": "allow",
+                    "fd *": "allow",
+                    "rg *": "allow",
+                    "grep *": "allow",
+                    "egrep *": "allow",
+                    "fgrep *": "allow",
+                    "ag *": "allow",
+                    "ack *": "allow",
+                    "ast-grep *": "allow",
+                    "sg *": "allow",
+                    "jq *": "allow",
+                    "yq *": "allow",
+                    "awk *": "allow",
+                    "sed -n *": "allow",
+                    "sort *": "allow",
+                    "uniq *": "allow",
+                    "cut *": "allow",
+                    "tr *": "allow",
+                    "diff *": "allow",
+                    "comm *": "allow",
+                    "cmp *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch*": "allow",
+                    "git tag*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "git grep*": "allow",
+                    "git shortlog*": "allow",
+                    "git reflog*": "allow",
+                    "git remote -v*": "allow",
+                    "ollama ps*": "allow",
+                    "ollama list*": "allow"
+                }
+            }
+        },
+        "compaction": {
+            "model": "openrouter/deepseek/deepseek-v4.1-flash"
+        },
+        "title": {
+            "model": "openrouter/deepseek/deepseek-v4.1-flash"
+        },
+        "summary": {
+            "model": "openrouter/deepseek/deepseek-v4.1-flash"
+        },
+        "general": {
+            "model": "openrouter/openai/gpt-6.1-terra",
+            "permission": {
+                "todowrite": "deny"
+            }
+        },
+        "explore": {
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "steps": 10,
+            "reasoning": {
+                "effort": "low"
+            }
+        },
+        "file-picker": {
+            "description": "Fast read-only repository scout returning structured file/symbol locations, discovered contracts/side-effects, and discovery status. Prefer native explore for general search; use file-picker for a compact path/symbol inventory.",
+            "mode": "subagent",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "temperature": 0.1,
+            "steps": 8,
+            "reasoning": {
+                "effort": "low"
+            },
+            "prompt": "{file:./prompts/file-picker.md}",
+            "permission": {
+                "edit": "deny",
+                "task": "deny",
+                "todowrite": "deny",
+                "context7_*": "deny",
+                "bash": {
+                    "*": "deny",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "cat *": "allow",
+                    "head *": "allow",
+                    "tail *": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "du *": "allow",
+                    "df *": "allow",
+                    "tree": "allow",
+                    "tree *": "allow",
+                    "pwd": "allow",
+                    "realpath *": "allow",
+                    "dirname *": "allow",
+                    "basename *": "allow",
+                    "readlink *": "allow",
+                    "which *": "allow",
+                    "whereis *": "allow",
+                    "type *": "allow",
+                    "uname*": "allow",
+                    "date*": "allow",
+                    "find *": "allow",
+                    "fd *": "allow",
+                    "rg *": "allow",
+                    "grep *": "allow",
+                    "egrep *": "allow",
+                    "fgrep *": "allow",
+                    "ag *": "allow",
+                    "ack *": "allow",
+                    "ast-grep *": "allow",
+                    "sg *": "allow",
+                    "jq *": "allow",
+                    "yq *": "allow",
+                    "awk *": "allow",
+                    "sed -n *": "allow",
+                    "sort *": "allow",
+                    "uniq *": "allow",
+                    "cut *": "allow",
+                    "tr *": "allow",
+                    "diff *": "allow",
+                    "comm *": "allow",
+                    "cmp *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch*": "allow",
+                    "git tag*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "git grep*": "allow",
+                    "git shortlog*": "allow",
+                    "git reflog*": "allow",
+                    "git remote -v*": "allow"
+                }
+            }
+        },
+        "fast-worker": {
+            "description": "Mechanical coding worker for bounded edits: boilerplate, CRUD, schemas, UI components, formatting, and routine unit tests.",
+            "mode": "subagent",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "temperature": 0.2,
+            "steps": 15,
+            "prompt": "{file:./prompts/fast-worker.md}",
+            "permission": {
+                "task": "deny",
+                "todowrite": "deny",
+                "bash": {
+                    "*": "ask",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "cat *": "allow",
+                    "head *": "allow",
+                    "tail *": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "du *": "allow",
+                    "df *": "allow",
+                    "tree": "allow",
+                    "tree *": "allow",
+                    "pwd": "allow",
+                    "realpath *": "allow",
+                    "dirname *": "allow",
+                    "basename *": "allow",
+                    "readlink *": "allow",
+                    "which *": "allow",
+                    "whereis *": "allow",
+                    "type *": "allow",
+                    "uname*": "allow",
+                    "date*": "allow",
+                    "echo *": "allow",
+                    "mkdir *": "allow",
+                    "touch *": "allow",
+                    "cp *": "allow",
+                    "mv *": "allow",
+                    "ln -s *": "allow",
+                    "find *": "allow",
+                    "fd *": "allow",
+                    "rg *": "allow",
+                    "grep *": "allow",
+                    "egrep *": "allow",
+                    "fgrep *": "allow",
+                    "ag *": "allow",
+                    "ack *": "allow",
+                    "ast-grep *": "allow",
+                    "sg *": "allow",
+                    "jq *": "allow",
+                    "yq *": "allow",
+                    "awk *": "allow",
+                    "sed *": "allow",
+                    "sort *": "allow",
+                    "uniq *": "allow",
+                    "cut *": "allow",
+                    "tr *": "allow",
+                    "diff *": "allow",
+                    "comm *": "allow",
+                    "cmp *": "allow",
+                    "xargs *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch*": "allow",
+                    "git tag*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "git grep*": "allow",
+                    "git add*": "allow",
+                    "git stash*": "allow",
+                    "node -v*": "allow",
+                    "node --version*": "allow",
+                    "npm test*": "allow",
+                    "npm run *": "allow",
+                    "npx *": "allow",
+                    "pnpm test*": "allow",
+                    "pnpm run *": "allow",
+                    "pnpm exec *": "allow",
+                    "pnpm dlx *": "allow",
+                    "yarn test*": "allow",
+                    "yarn run *": "allow",
+                    "bun test*": "allow",
+                    "bun run *": "allow",
+                    "bunx *": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "playwright test*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
+                    "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "python -m py_compile*": "allow",
+                    "python3 -m py_compile*": "allow",
+                    "uv run *": "allow",
+                    "uvx *": "allow",
+                    "poetry run *": "allow",
+                    "pdm run *": "allow",
+                    "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
+                    "black *": "allow",
+                    "isort *": "allow",
+                    "flake8*": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "cargo clippy*": "allow",
+                    "cargo build*": "allow",
+                    "cargo fmt*": "allow",
+                    "cargo nextest*": "allow",
+                    "go test*": "allow",
+                    "go vet*": "allow",
+                    "go build*": "allow",
+                    "golangci-lint*": "allow",
+                    "gofmt*": "allow",
+                    "make": "allow",
+                    "make *": "allow",
+                    "just *": "allow",
+                    "rm -rf *": "deny",
+                    "sudo *": "deny",
+                    "git push*": "deny",
+                    "git reset --hard*": "deny",
+                    "git clean -f*": "deny",
+                    "git checkout -- *": "deny",
+                    "git branch -D*": "deny",
+                    "npm publish*": "deny",
+                    "pnpm publish*": "deny",
+                    "cargo publish*": "deny",
+                    "dd *": "deny",
+                    "mkfs*": "deny",
+                    "kill -9 *": "deny",
+                    "pkill *": "deny",
+                    "shutdown*": "deny",
+                    "reboot*": "deny"
+                }
+            }
+        },
+        "mid-surgeon": {
+            "description": "Implementation specialist (GPT-6.1 Terra) for standard multi-file features, state/API wiring, migrations, and non-trivial refactors.",
+            "mode": "subagent",
+            "model": "openrouter/openai/gpt-6.1-terra",
+            "temperature": 0.2,
+            "steps": 20,
+            "prompt": "{file:./prompts/mid-surgeon.md}",
+            "permission": {
+                "task": "deny",
+                "todowrite": "deny",
+                "bash": {
+                    "*": "ask",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "cat *": "allow",
+                    "head *": "allow",
+                    "tail *": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "du *": "allow",
+                    "df *": "allow",
+                    "tree": "allow",
+                    "tree *": "allow",
+                    "pwd": "allow",
+                    "realpath *": "allow",
+                    "dirname *": "allow",
+                    "basename *": "allow",
+                    "readlink *": "allow",
+                    "which *": "allow",
+                    "whereis *": "allow",
+                    "type *": "allow",
+                    "uname*": "allow",
+                    "date*": "allow",
+                    "echo *": "allow",
+                    "mkdir *": "allow",
+                    "touch *": "allow",
+                    "cp *": "allow",
+                    "mv *": "allow",
+                    "ln -s *": "allow",
+                    "find *": "allow",
+                    "fd *": "allow",
+                    "rg *": "allow",
+                    "grep *": "allow",
+                    "egrep *": "allow",
+                    "fgrep *": "allow",
+                    "ag *": "allow",
+                    "ack *": "allow",
+                    "ast-grep *": "allow",
+                    "sg *": "allow",
+                    "jq *": "allow",
+                    "yq *": "allow",
+                    "awk *": "allow",
+                    "sed *": "allow",
+                    "sort *": "allow",
+                    "uniq *": "allow",
+                    "cut *": "allow",
+                    "tr *": "allow",
+                    "diff *": "allow",
+                    "comm *": "allow",
+                    "cmp *": "allow",
+                    "xargs *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch*": "allow",
+                    "git tag*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "git grep*": "allow",
+                    "git add*": "allow",
+                    "git stash*": "allow",
+                    "node -v*": "allow",
+                    "node --version*": "allow",
+                    "npm test*": "allow",
+                    "npm run *": "allow",
+                    "npx *": "allow",
+                    "pnpm test*": "allow",
+                    "pnpm run *": "allow",
+                    "pnpm exec *": "allow",
+                    "pnpm dlx *": "allow",
+                    "yarn test*": "allow",
+                    "yarn run *": "allow",
+                    "bun test*": "allow",
+                    "bun run *": "allow",
+                    "bunx *": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "playwright test*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
+                    "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "python -m py_compile*": "allow",
+                    "python3 -m py_compile*": "allow",
+                    "uv run *": "allow",
+                    "uvx *": "allow",
+                    "poetry run *": "allow",
+                    "pdm run *": "allow",
+                    "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
+                    "black *": "allow",
+                    "isort *": "allow",
+                    "flake8*": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "cargo clippy*": "allow",
+                    "cargo build*": "allow",
+                    "cargo fmt*": "allow",
+                    "cargo nextest*": "allow",
+                    "go test*": "allow",
+                    "go vet*": "allow",
+                    "go build*": "allow",
+                    "golangci-lint*": "allow",
+                    "gofmt*": "allow",
+                    "make": "allow",
+                    "make *": "allow",
+                    "just *": "allow",
+                    "rm -rf *": "deny",
+                    "sudo *": "deny",
+                    "git push*": "deny",
+                    "git reset --hard*": "deny",
+                    "git clean -f*": "deny",
+                    "git checkout -- *": "deny",
+                    "git branch -D*": "deny",
+                    "npm publish*": "deny",
+                    "pnpm publish*": "deny",
+                    "cargo publish*": "deny",
+                    "dd *": "deny",
+                    "mkfs*": "deny",
+                    "kill -9 *": "deny",
+                    "pkill *": "deny",
+                    "shutdown*": "deny",
+                    "reboot*": "deny"
+                }
+            }
+        },
+        "deep-surgeon": {
+            "description": "High-complexity specialist for concurrency, security/auth/crypto, hard algorithms, or escalations when lower-tier workers are blocked.",
+            "mode": "subagent",
+            "model": "openrouter/google/gemini-4-argon",
+            "temperature": 0.1,
+            "steps": 25,
+            "prompt": "{file:./prompts/deep-surgeon.md}",
+            "permission": {
+                "task": "deny",
+                "todowrite": "deny",
+                "bash": {
+                    "*": "ask",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "cat *": "allow",
+                    "head *": "allow",
+                    "tail *": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "du *": "allow",
+                    "df *": "allow",
+                    "tree": "allow",
+                    "tree *": "allow",
+                    "pwd": "allow",
+                    "realpath *": "allow",
+                    "dirname *": "allow",
+                    "basename *": "allow",
+                    "readlink *": "allow",
+                    "which *": "allow",
+                    "whereis *": "allow",
+                    "type *": "allow",
+                    "uname*": "allow",
+                    "date*": "allow",
+                    "echo *": "allow",
+                    "mkdir *": "allow",
+                    "touch *": "allow",
+                    "cp *": "allow",
+                    "mv *": "allow",
+                    "ln -s *": "allow",
+                    "find *": "allow",
+                    "fd *": "allow",
+                    "rg *": "allow",
+                    "grep *": "allow",
+                    "egrep *": "allow",
+                    "fgrep *": "allow",
+                    "ag *": "allow",
+                    "ack *": "allow",
+                    "ast-grep *": "allow",
+                    "sg *": "allow",
+                    "jq *": "allow",
+                    "yq *": "allow",
+                    "awk *": "allow",
+                    "sed *": "allow",
+                    "sort *": "allow",
+                    "uniq *": "allow",
+                    "cut *": "allow",
+                    "tr *": "allow",
+                    "diff *": "allow",
+                    "comm *": "allow",
+                    "cmp *": "allow",
+                    "xargs *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch*": "allow",
+                    "git tag*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "git grep*": "allow",
+                    "git add*": "allow",
+                    "git stash*": "allow",
+                    "node -v*": "allow",
+                    "node --version*": "allow",
+                    "npm test*": "allow",
+                    "npm run *": "allow",
+                    "npx *": "allow",
+                    "pnpm test*": "allow",
+                    "pnpm run *": "allow",
+                    "pnpm exec *": "allow",
+                    "pnpm dlx *": "allow",
+                    "yarn test*": "allow",
+                    "yarn run *": "allow",
+                    "bun test*": "allow",
+                    "bun run *": "allow",
+                    "bunx *": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "playwright test*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
+                    "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "python -m py_compile*": "allow",
+                    "python3 -m py_compile*": "allow",
+                    "uv run *": "allow",
+                    "uvx *": "allow",
+                    "poetry run *": "allow",
+                    "pdm run *": "allow",
+                    "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
+                    "black *": "allow",
+                    "isort *": "allow",
+                    "flake8*": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "cargo clippy*": "allow",
+                    "cargo build*": "allow",
+                    "cargo fmt*": "allow",
+                    "cargo nextest*": "allow",
+                    "go test*": "allow",
+                    "go vet*": "allow",
+                    "go build*": "allow",
+                    "golangci-lint*": "allow",
+                    "gofmt*": "allow",
+                    "make": "allow",
+                    "make *": "allow",
+                    "just *": "allow",
+                    "rm -rf *": "deny",
+                    "sudo *": "deny",
+                    "git push*": "deny",
+                    "git reset --hard*": "deny",
+                    "git clean -f*": "deny",
+                    "git checkout -- *": "deny",
+                    "git branch -D*": "deny",
+                    "npm publish*": "deny",
+                    "pnpm publish*": "deny",
+                    "cargo publish*": "deny",
+                    "dd *": "deny",
+                    "mkfs*": "deny",
+                    "kill -9 *": "deny",
+                    "pkill *": "deny",
+                    "shutdown*": "deny",
+                    "reboot*": "deny"
+                }
+            }
+        },
+        "local-scout": {
+            "description": "Local zero-API-cost inference helper for inexpensive repository inspection and git diff/log summarization.",
+            "mode": "subagent",
+            "model": "ollama/qwen3-coder:30b",
+            "temperature": 0.1,
+            "steps": 8,
+            "prompt": "{file:./prompts/local-scout.md}",
+            "permission": {
+                "*": "deny",
+                "read": "allow",
+                "glob": "allow",
+                "grep": "allow",
+                "list": "allow",
+                "semantic_search": "allow",
+                "bash": {
+                    "*": "deny",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "cat *": "allow",
+                    "head *": "allow",
+                    "tail *": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "du *": "allow",
+                    "df *": "allow",
+                    "tree": "allow",
+                    "tree *": "allow",
+                    "pwd": "allow",
+                    "realpath *": "allow",
+                    "dirname *": "allow",
+                    "basename *": "allow",
+                    "readlink *": "allow",
+                    "which *": "allow",
+                    "whereis *": "allow",
+                    "type *": "allow",
+                    "uname*": "allow",
+                    "date*": "allow",
+                    "find *": "allow",
+                    "fd *": "allow",
+                    "rg *": "allow",
+                    "grep *": "allow",
+                    "egrep *": "allow",
+                    "fgrep *": "allow",
+                    "ag *": "allow",
+                    "ack *": "allow",
+                    "ast-grep *": "allow",
+                    "sg *": "allow",
+                    "jq *": "allow",
+                    "yq *": "allow",
+                    "awk *": "allow",
+                    "sed -n *": "allow",
+                    "sort *": "allow",
+                    "uniq *": "allow",
+                    "cut *": "allow",
+                    "tr *": "allow",
+                    "diff *": "allow",
+                    "comm *": "allow",
+                    "cmp *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch*": "allow",
+                    "git tag*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "git grep*": "allow",
+                    "git shortlog*": "allow",
+                    "git reflog*": "allow",
+                    "git remote -v*": "allow",
+                    "ollama ps*": "allow",
+                    "ollama list*": "allow"
+                }
+            }
+        }
+    }
+}
