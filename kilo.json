@@ -6,9 +6,6 @@
     "subagent_depth": 1,
     "reasoning_display": "preview",
     "terminal_command_display": "collapsed",
-    "experimental": {
-        "batch_tool": true
-    },
     "indexing": {
         "enabled": true,
         "provider": "openrouter",
@@ -82,11 +79,11 @@
                         "X-OpenRouter-Metadata": "enabled"
                     },
                     "options": {
-                        "cache_control": {
-                            "type": "ephemeral"
-                        },
                         "provider": {
-                            "allow_fallbacks": true
+                            "allow_fallbacks": true,
+                            "ignore": [
+                                "azure"
+                            ]
                         },
                         "plugins": [
                             {
@@ -96,14 +93,14 @@
                                     "deepseek/deepseek-v4.1-flash",
                                     "openai/gpt-6-luna",
                                     "openai/gpt-6.1-terra",
-                                    "openai/gpt-6.1-sol",
-                                    "anthropic/claude-sonnet-5.5"
+                                    "openai/gpt-6.1-sol"
                                 ],
                                 "excluded_models": [
                                     "openai/gpt-6-astra*",
                                     "openai/gpt-5*",
-                                    "anthropic/claude-fable*",
-                                    "anthropic/claude-opus*"
+                                    "anthropic/*",
+                                    "google/*",
+                                    "x-ai/*"
                                 ]
                             }
                         ]
@@ -132,11 +129,11 @@
                         "X-OpenRouter-Metadata": "enabled"
                     },
                     "options": {
-                        "cache_control": {
-                            "type": "ephemeral"
-                        },
                         "provider": {
-                            "allow_fallbacks": true
+                            "allow_fallbacks": true,
+                            "ignore": [
+                                "azure"
+                            ]
                         },
                         "plugins": [
                             {
@@ -145,17 +142,15 @@
                                 "models": [
                                     "deepseek/deepseek-v4.1-flash",
                                     "openai/gpt-6-luna",
-                                    "google/gemini-3.8-flash",
                                     "openai/gpt-6.1-terra"
                                 ],
                                 "excluded_models": [
                                     "openai/gpt-6-astra*",
                                     "openai/gpt-6.1-sol*",
                                     "openai/gpt-5*",
-                                    "anthropic/claude-sonnet*",
-                                    "anthropic/claude-opus*",
-                                    "anthropic/claude-fable*",
-                                    "google/gemini-4-argon*"
+                                    "anthropic/*",
+                                    "google/*",
+                                    "x-ai/*"
                                 ]
                             }
                         ]
@@ -184,11 +179,11 @@
                         "X-OpenRouter-Metadata": "enabled"
                     },
                     "options": {
-                        "cache_control": {
-                            "type": "ephemeral"
-                        },
                         "provider": {
-                            "allow_fallbacks": true
+                            "allow_fallbacks": true,
+                            "ignore": [
+                                "azure"
+                            ]
                         },
                         "plugins": [
                             {
@@ -196,15 +191,14 @@
                                 "cost_tier": "high",
                                 "models": [
                                     "openai/gpt-6.1-terra",
-                                    "google/gemini-4-argon",
-                                    "openai/gpt-6.1-sol",
-                                    "anthropic/claude-sonnet-5.5"
+                                    "openai/gpt-6.1-sol"
                                 ],
                                 "excluded_models": [
                                     "openai/gpt-6-astra*",
                                     "openai/gpt-5*",
-                                    "anthropic/claude-fable*",
-                                    "anthropic/claude-opus*"
+                                    "anthropic/*",
+                                    "google/*",
+                                    "x-ai/*"
                                 ]
                             }
                         ]
@@ -213,191 +207,82 @@
                 "deepseek/deepseek-v4.1-flash": {
                     "name": "DeepSeek V4.1 Flash (Scout & Mechanical Worker)",
                     "id": "deepseek/deepseek-v4.1-flash",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1048576,
-                        "output": 32768
-                    },
                     "options": {
                         "provider": {
                             "allow_fallbacks": true
-                        },
-                        "models": [
-                            "deepseek/deepseek-v4.1-flash",
-                            "openai/gpt-6-luna",
-                            "google/gemini-3.8-flash"
-                        ]
+                        }
                     }
                 },
                 "openai/gpt-6-luna": {
                     "name": "GPT-6 Luna (Fast Light Coding & Compaction)",
                     "id": "openai/gpt-6-luna",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1050000,
-                        "output": 32768
-                    },
                     "options": {
                         "provider": {
-                            "allow_fallbacks": true
+                            "allow_fallbacks": true,
+                            "ignore": [
+                                "azure"
+                            ]
                         }
                     }
                 },
                 "openai/gpt-6.1-terra": {
                     "name": "GPT-6.1 Terra (Direct Implementation & Mid-Surgeon)",
                     "id": "openai/gpt-6.1-terra",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1050000,
-                        "output": 32768
-                    },
                     "options": {
                         "provider": {
-                            "allow_fallbacks": true
+                            "allow_fallbacks": true,
+                            "ignore": [
+                                "azure"
+                            ]
                         }
                     }
                 },
                 "openai/gpt-6.1-sol": {
                     "name": "GPT-6.1 Sol (Direct Flagship)",
                     "id": "openai/gpt-6.1-sol",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1050000,
-                        "output": 32768
-                    },
                     "options": {
                         "provider": {
-                            "allow_fallbacks": true
+                            "allow_fallbacks": true,
+                            "ignore": [
+                                "azure"
+                            ]
                         }
                     }
                 },
                 "google/gemini-4-argon": {
                     "name": "Gemini 4 Argon (Direct Deep Surgeon & Reasoning)",
                     "id": "google/gemini-4-argon",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1048576,
-                        "output": 65536
-                    },
                     "options": {
                         "provider": {
                             "allow_fallbacks": true
-                        },
-                        "models": [
-                            "google/gemini-4-argon",
-                            "openai/gpt-6.1-sol",
-                            "anthropic/claude-sonnet-5.5"
-                        ]
+                        }
                     }
                 },
                 "anthropic/claude-sonnet-5.5": {
                     "name": "Claude Sonnet 5.5 (Direct Flagship, Auto-Cached)",
                     "id": "anthropic/claude-sonnet-5.5",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1000000,
-                        "output": 32768
-                    },
                     "options": {
                         "cache_control": {
                             "type": "ephemeral"
                         },
                         "provider": {
-                            "allow_fallbacks": true
+                            "only": [
+                                "anthropic"
+                            ]
                         }
                     }
                 },
                 "anthropic/claude-opus-5.5": {
                     "name": "Claude Opus 5.5 (Manual Only - Strict Opus, Auto-Cached)",
                     "id": "anthropic/claude-opus-5.5",
-                    "tool_call": true,
-                    "reasoning": true,
-                    "attachment": true,
-                    "modalities": {
-                        "input": [
-                            "text",
-                            "image"
-                        ],
-                        "output": [
-                            "text"
-                        ]
-                    },
-                    "limit": {
-                        "context": 1000000,
-                        "output": 32768
-                    },
                     "options": {
                         "cache_control": {
                             "type": "ephemeral"
                         },
                         "provider": {
-                            "allow_fallbacks": true
+                            "only": [
+                                "anthropic"
+                            ]
                         }
                     }
                 }
@@ -411,7 +296,7 @@
             },
             "models": {
                 "qwen3-coder:30b": {
-                    "name": "Qwen3 Coder 30B (Local Inference - Use 32K num_ctx Modelfile)",
+                    "name": "Qwen3 Coder 30B (Local Inference - 32K Context)",
                     "tool_call": true,
                     "limit": {
                         "context": 32768,
@@ -427,9 +312,14 @@
             "model": "openrouter/typesafe/jev-router"
         },
         "code-pinned": {
-            "description": "Cache-locked primary coding mode (GPT-6.1 Terra) for sustained multi-turn sessions where single-model prefix cache continuity and native GPT tool selection (apply_patch) outweigh router switching.",
+            "description": "Fixed-model primary coding mode (GPT-6.1 Terra) with native Code permissions, GPT system prompt, and apply_patch active for sustained single-model sessions.",
             "mode": "primary",
-            "model": "openrouter/openai/gpt-6.1-terra"
+            "model": "openrouter/openai/gpt-6.1-terra",
+            "permission": {
+                "question": "allow",
+                "suggest": "allow",
+                "plan_enter": "allow"
+            }
         },
         "plan": {
             "mode": "primary",
@@ -473,7 +363,7 @@
             }
         },
         "file-picker": {
-            "description": "Fast read-only repository scout returning structured file/symbol locations, discovered contracts/side-effects, and discovery status. Prefer native explore for general search; use file-picker when you need a strict path/symbol inventory.",
+            "description": "Fast read-only repository scout returning a structured path/symbol/contract inventory. Prefer native explore for general search; use file-picker when partitioning work across subagents.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "steps": 8,
@@ -483,55 +373,24 @@
             "prompt": "{file:./prompts/file-picker.md}",
             "permission": {
                 "edit": "deny",
+                "bash": "deny",
                 "task": "deny",
                 "agent_manager": "deny",
                 "todowrite": "deny",
                 "context7_*": "deny",
-                "jev_decide": "deny",
-                "jev_review": "deny",
-                "jev_gate": "deny",
-                "jev_noul": "deny",
-                "bash": {
-                    "*": "deny",
-                    "ls": "allow",
-                    "ls *": "allow",
-                    "pwd": "allow",
-                    "wc *": "allow",
-                    "stat *": "allow",
-                    "file *": "allow",
-                    "du *": "allow",
-                    "df *": "allow",
-                    "tree": "allow",
-                    "tree *": "allow",
-                    "which *": "allow",
-                    "whereis *": "allow",
-                    "type *": "allow",
-                    "uname*": "allow",
-                    "date*": "allow",
-                    "git status*": "allow",
-                    "git diff*": "allow",
-                    "git log*": "allow",
-                    "git show*": "allow",
-                    "git blame*": "allow",
-                    "git branch --show-current*": "allow",
-                    "git branch -a*": "allow",
-                    "git branch -r*": "allow",
-                    "git branch --list*": "allow",
-                    "git tag -l*": "allow",
-                    "git tag --list*": "allow",
-                    "git rev-parse*": "allow",
-                    "git ls-files*": "allow",
-                    "git grep*": "allow",
-                    "git shortlog*": "allow",
-                    "git remote -v*": "allow"
-                }
+                "jev_*": "deny",
+                "jev_jev_find": "allow",
+                "jev_jev_rerank": "allow"
             }
         },
         "fast-worker": {
-            "description": "Mechanical coding worker (DeepSeek V4.1 Flash) with native model prompt intact for bounded edits: boilerplate, CRUD, schemas, UI components, formatting, and routine unit tests.",
+            "description": "Mechanical coding worker (DeepSeek V4.1 Flash, low reasoning effort) with native model prompt intact for bounded edits: boilerplate, CRUD, schemas, UI components, formatting, and routine unit tests.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "steps": 20,
+            "reasoning": {
+                "effort": "low"
+            },
             "permission": {
                 "task": "deny",
                 "agent_manager": "deny",
@@ -603,8 +462,6 @@
                     "git rev-parse*": "allow",
                     "git ls-files*": "allow",
                     "git grep*": "allow",
-                    "git add*": "allow",
-                    "git stash*": "allow",
                     "node -v*": "allow",
                     "node --version*": "allow",
                     "npm test*": "allow",
@@ -660,6 +517,9 @@
                     "make": "allow",
                     "make *": "allow",
                     "just *": "allow",
+                    "git add*": "deny",
+                    "git stash*": "deny",
+                    "git commit*": "deny",
                     "rm -rf *": "deny",
                     "sudo *": "deny",
                     "git push*": "deny",
@@ -687,10 +547,10 @@
             "permission": {
                 "task": "deny",
                 "agent_manager": "deny",
-                "todowrite": "deny",
-                "jev_find": "deny",
-                "jev_rerank": "deny",
-                "jev_noul": "deny",
+                "jev_*": "deny",
+                "jev_jev_decide": "allow",
+                "jev_jev_review": "allow",
+                "jev_jev_gate": "allow",
                 "bash": {
                     "*": "ask",
                     "ls": "allow",
@@ -757,8 +617,6 @@
                     "git rev-parse*": "allow",
                     "git ls-files*": "allow",
                     "git grep*": "allow",
-                    "git add*": "allow",
-                    "git stash*": "allow",
                     "node -v*": "allow",
                     "node --version*": "allow",
                     "npm test*": "allow",
@@ -814,6 +672,9 @@
                     "make": "allow",
                     "make *": "allow",
                     "just *": "allow",
+                    "git add*": "deny",
+                    "git stash*": "deny",
+                    "git commit*": "deny",
                     "rm -rf *": "deny",
                     "sudo *": "deny",
                     "git push*": "deny",
@@ -834,14 +695,18 @@
             }
         },
         "deep-surgeon": {
-            "description": "High-complexity specialist (Gemini 4 Argon) with native model prompt intact for concurrency, security/auth/crypto, hard algorithms, or escalations when lower-tier workers are blocked.",
+            "description": "High-complexity specialist (Gemini 4 Argon) with native model prompt intact for hard root-cause escalations, complex invariants, or cross-module synthesis when lower-tier workers are blocked.",
             "mode": "subagent",
             "model": "openrouter/google/gemini-4-argon",
             "steps": 30,
             "permission": {
                 "task": "deny",
                 "agent_manager": "deny",
-                "todowrite": "deny",
+                "jev_*": "deny",
+                "jev_jev_decide": "allow",
+                "jev_jev_review": "allow",
+                "jev_jev_gate": "allow",
+                "jev_jev_noul": "allow",
                 "bash": {
                     "*": "ask",
                     "ls": "allow",
@@ -908,8 +773,6 @@
                     "git rev-parse*": "allow",
                     "git ls-files*": "allow",
                     "git grep*": "allow",
-                    "git add*": "allow",
-                    "git stash*": "allow",
                     "node -v*": "allow",
                     "node --version*": "allow",
                     "npm test*": "allow",
@@ -965,6 +828,9 @@
                     "make": "allow",
                     "make *": "allow",
                     "just *": "allow",
+                    "git add*": "deny",
+                    "git stash*": "deny",
+                    "git commit*": "deny",
                     "rm -rf *": "deny",
                     "sudo *": "deny",
                     "git push*": "deny",
@@ -985,7 +851,7 @@
             }
         },
         "local-scout": {
-            "description": "Local zero-API-cost inference helper for inexpensive repository inspection and git diff/log summarization.",
+            "description": "Local inference helper (Ollama qwen3-coder:30b, zero model API charge) for bounded file inspection, log extraction, and git diff/log summarization.",
             "mode": "subagent",
             "model": "ollama/qwen3-coder:30b",
             "steps": 8,
