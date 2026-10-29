@@ -1,9 +1,10 @@
 {
     "$schema": "https://app.kilo.ai/config.json",
-    "model": "openrouter/openai/gpt-6.1-terra",
+    "model": "openrouter/deepseek/deepseek-v4.1-flash",
     "small_model": "openrouter/deepseek/deepseek-v4.1-flash",
     "memory_model": "openrouter/deepseek/deepseek-v4.1-flash",
     "subagent_model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "default_agent": "code",
     "subagent_depth": 1,
     "web_search": true,
     "reasoning_display": "preview",
@@ -26,13 +27,7 @@
             "*.min.js": "deny",
             "*.min.css": "deny",
             "*.bundle.js": "deny",
-            "*.map": "deny",
-            ".env": "deny",
-            ".env.*": "deny",
-            "*/.env": "deny",
-            "*/.env.*": "deny",
-            ".env.example": "allow",
-            "*/.env.example": "allow"
+            "*.map": "deny"
         }
     },
     "indexing": {
@@ -237,14 +232,14 @@
                     }
                 },
                 "deepseek/deepseek-v4.1-flash": {
-                    "name": "DeepSeek V4.1 Flash (Scout & Mechanical Worker)",
+                    "name": "DeepSeek V4.1 Flash (Default Primary, Scout & Fast Worker)",
                     "id": "deepseek/deepseek-v4.1-flash",
                     "options": {
                         "provider": {
                             "allow_fallbacks": true,
                             "max_price": {
                                 "prompt": 0.15,
-                                "completion": 0.40
+                                "completion": 0.65
                             }
                         }
                     }
@@ -257,7 +252,7 @@
                             "allow_fallbacks": true,
                             "max_price": {
                                 "prompt": 0.15,
-                                "completion": 0.40
+                                "completion": 0.65
                             }
                         }
                     }
@@ -287,7 +282,7 @@
                     }
                 },
                 "openai/gpt-6.1-terra": {
-                    "name": "GPT-6.1 Terra (Direct Implementation & Mid-Surgeon)",
+                    "name": "GPT-6.1 Terra (Escalation Primary & Mid-Surgeon)",
                     "id": "openai/gpt-6.1-terra",
                     "options": {
                         "provider": {
@@ -361,8 +356,14 @@
     },
     "agent": {
         "code": {
+            "description": "Default primary coding mode (DeepSeek V4.1 Flash, low effort). Handles routine features, bug fixes, tests, and multi-file edits with clear contracts and usable verification. Escalate to @mid-surgeon or @deep-surgeon when the task brief or observed evidence identifies an unresolved invariant, conflicting contract, difficult failed hypothesis, or substantive design decision.",
             "mode": "primary",
-            "model": "openrouter/openai/gpt-6.1-terra",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
+            },
             "permission": {
                 "bash": {
                     "git status*": "allow",
@@ -377,12 +378,45 @@
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
                     "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
                     "tsc*": "allow",
                     "vitest*": "allow",
                     "jest*": "allow",
@@ -390,6 +424,17 @@
                     "prettier*": "allow",
                     "biome *": "allow",
                     "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
                     "mypy *": "allow",
                     "pyright*": "allow",
@@ -398,14 +443,22 @@
                     "cargo clippy*": "allow",
                     "go test*": "allow",
                     "go vet*": "allow",
-                    "golangci-lint*": "allow"
+                    "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow"
                 }
             }
         },
         "code-jev": {
-            "description": "Adaptive Jev-routed primary coding mode (typesafe/jev-router across DeepSeek Flash, Luna, Terra, and Sol) for comparing router cost/latency against native pinned Code.",
+            "description": "Low-tier Jev-routed primary coding mode (jev-router-low, low effort hint) with native primary permissions and verified shell commands for clean A/B comparison against fixed-model Flash Code.",
             "mode": "primary",
-            "model": "openrouter/typesafe/jev-router",
+            "model": "openrouter/jev-router-low",
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
+            },
             "permission": {
                 "question": "allow",
                 "suggest": "allow",
@@ -423,12 +476,45 @@
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
                     "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
                     "tsc*": "allow",
                     "vitest*": "allow",
                     "jest*": "allow",
@@ -436,6 +522,17 @@
                     "prettier*": "allow",
                     "biome *": "allow",
                     "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
                     "mypy *": "allow",
                     "pyright*": "allow",
@@ -444,14 +541,22 @@
                     "cargo clippy*": "allow",
                     "go test*": "allow",
                     "go vet*": "allow",
-                    "golangci-lint*": "allow"
+                    "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow"
                 }
             }
         },
         "code-pinned": {
-            "description": "Fixed-model primary coding mode (GPT-6.1 Terra) alias with native Code permissions, GPT system prompt, and apply_patch active.",
+            "description": "Escalation fixed-model primary coding mode (GPT-6.1 Terra, medium effort) with native Code permissions, GPT system prompt, and apply_patch active for whole-session complex architecture or debugging.",
             "mode": "primary",
             "model": "openrouter/openai/gpt-6.1-terra",
+            "options": {
+                "reasoning": {
+                    "effort": "medium"
+                }
+            },
             "permission": {
                 "question": "allow",
                 "suggest": "allow",
@@ -469,12 +574,45 @@
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
                     "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
                     "tsc*": "allow",
                     "vitest*": "allow",
                     "jest*": "allow",
@@ -482,6 +620,17 @@
                     "prettier*": "allow",
                     "biome *": "allow",
                     "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
                     "mypy *": "allow",
                     "pyright*": "allow",
@@ -490,13 +639,21 @@
                     "cargo clippy*": "allow",
                     "go test*": "allow",
                     "go vet*": "allow",
-                    "golangci-lint*": "allow"
+                    "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow"
                 }
             }
         },
         "plan": {
             "mode": "primary",
-            "model": "openrouter/jev-router-high",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "options": {
+                "reasoning": {
+                    "effort": "high"
+                }
+            },
             "permission": {
                 "task": {
                     "*": "deny",
@@ -509,29 +666,134 @@
         },
         "debug": {
             "mode": "primary",
-            "model": "openrouter/jev-router-high"
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "options": {
+                "reasoning": {
+                    "effort": "high"
+                }
+            },
+            "permission": {
+                "bash": {
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "npm test*": "allow",
+                    "npm run test*": "allow",
+                    "npm run lint*": "allow",
+                    "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
+                    "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
+                    "pnpm run test*": "allow",
+                    "pnpm run lint*": "allow",
+                    "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
+                    "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
+                    "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
+                    "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
+                    "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "cargo clippy*": "allow",
+                    "go test*": "allow",
+                    "go vet*": "allow",
+                    "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow"
+                }
+            }
         },
         "ask": {
             "mode": "primary",
-            "model": "openrouter/jev-router-low"
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
+            }
         },
         "compaction": {
             "model": "openrouter/openai/gpt-6-luna"
         },
         "title": {
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
-            "reasoning": {
-                "effort": "low"
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
             }
         },
         "summary": {
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
-            "reasoning": {
-                "effort": "low"
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
             }
         },
         "general": {
-            "model": "openrouter/openai/gpt-6.1-terra",
+            "description": "General-purpose subagent (DeepSeek V4.1 Flash, low effort) for ordinary delegated research and multi-step implementation tasks.",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
+            },
             "permission": {
                 "task": "deny",
                 "agent_manager": "deny",
@@ -543,48 +805,122 @@
                     "git log*": "allow",
                     "git show*": "allow",
                     "git blame*": "allow",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
                     "npm test*": "allow",
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
+                    "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
+                    "deno test*": "allow",
+                    "deno check*": "allow",
+                    "deno lint*": "allow",
                     "tsc*": "allow",
                     "vitest*": "allow",
                     "jest*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
                     "pytest*": "allow",
+                    "python -m pytest*": "allow",
+                    "python3 -m pytest*": "allow",
+                    "python -m unittest*": "allow",
+                    "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
                     "cargo test*": "allow",
                     "cargo check*": "allow",
+                    "cargo clippy*": "allow",
                     "go test*": "allow",
+                    "go vet*": "allow",
+                    "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow",
                     "git add*": "deny",
                     "git stash*": "deny",
                     "git commit*": "deny",
                     "git push*": "deny",
                     "git reset --hard*": "deny",
                     "git clean -f*": "deny",
+                    "git checkout -- *": "deny",
+                    "git branch -D*": "deny",
+                    "npm publish*": "deny",
+                    "pnpm publish*": "deny",
+                    "cargo publish*": "deny",
                     "rm -rf *": "deny",
-                    "sudo *": "deny"
+                    "sudo *": "deny",
+                    "dd *": "deny",
+                    "mkfs*": "deny",
+                    "kill -9 *": "deny",
+                    "pkill *": "deny",
+                    "shutdown*": "deny",
+                    "reboot*": "deny"
                 }
             }
         },
         "explore": {
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "steps": 10,
-            "reasoning": {
-                "effort": "low"
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
             }
         },
         "doc-summarizer": {
-            "description": "Low-cost documentation, specification, Context7 library-doc, and web research summarizer. Use from Code, Plan, or Debug when synthesizing external docs, PRDs, or long markdown specs so the parent session receives concise signatures, constraints, and citations without raw doc dumps.",
+            "description": "Low-cost documentation, specification, Context7 library-doc, and web research summarizer (DeepSeek V4.1 Flash, low effort). Use from Code, Plan, or Debug when synthesizing external docs, PRDs, or long markdown specs so the parent session receives concise signatures, constraints, and citations without raw doc dumps.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "steps": 10,
-            "reasoning": {
-                "effort": "low"
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
             },
             "prompt": "{file:./prompts/doc-summarizer.md}",
             "permission": {
@@ -628,12 +964,14 @@
             }
         },
         "file-picker": {
-            "description": "Fast read-only repository scout returning a structured path/symbol/contract inventory with verbatim signatures. Prefer native explore for general search; use file-picker when partitioning work across subagents.",
+            "description": "Fast read-only repository scout (DeepSeek V4.1 Flash, low effort) returning a structured path/symbol/contract inventory with verbatim signatures. Prefer native explore for general search; use file-picker when partitioning work across subagents.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
             "steps": 8,
-            "reasoning": {
-                "effort": "low"
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
             },
             "prompt": "{file:./prompts/file-picker.md}",
             "permission": {
@@ -675,12 +1013,14 @@
             }
         },
         "fast-worker": {
-            "description": "Mechanical coding worker (DeepSeek V4.1 Flash, low reasoning effort) with native model prompt intact for bounded edits with clear expected behavior: boilerplate, schemas, formatting, and routine unit tests.",
+            "description": "Default implementation subagent (DeepSeek V4.1 Flash, low effort) with native model-dependent prompting preserved for bounded features, routine bug fixes, API/UI wiring, tests, refactors, and straightforward multi-file changes that follow existing patterns. Stop and return evidence after two materially different attempts without progress or when contracts/scope conflict.",
             "mode": "subagent",
             "model": "openrouter/deepseek/deepseek-v4.1-flash",
-            "steps": 20,
-            "reasoning": {
-                "effort": "low"
+            "steps": 25,
+            "options": {
+                "reasoning": {
+                    "effort": "low"
+                }
             },
             "permission": {
                 "task": "deny",
@@ -700,12 +1040,42 @@
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
                     "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
                     "deno test*": "allow",
                     "deno check*": "allow",
                     "deno lint*": "allow",
@@ -720,6 +1090,13 @@
                     "python3 -m pytest*": "allow",
                     "python -m unittest*": "allow",
                     "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
                     "mypy *": "allow",
                     "pyright*": "allow",
@@ -729,6 +1106,9 @@
                     "go test*": "allow",
                     "go vet*": "allow",
                     "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow",
                     "git add*": "deny",
                     "git stash*": "deny",
                     "git commit*": "deny",
@@ -752,10 +1132,15 @@
             }
         },
         "mid-surgeon": {
-            "description": "Implementation specialist (GPT-6.1 Terra) with native GPT coding prompt and apply_patch intact for multi-file features, state/API wiring, migrations, and refactors.",
+            "description": "Escalation implementation specialist (GPT-6.1 Terra, medium effort) with native GPT coding prompt and apply_patch intact. Escalate here from any cheap execution agent (code, general, debug, fast-worker) when the task brief or observed evidence identifies an unresolved invariant, conflicting cross-module contract, difficult failed hypothesis, or substantive design decision. A failed cheap attempt is not required when the need for stronger reasoning is already clear.",
             "mode": "subagent",
             "model": "openrouter/openai/gpt-6.1-terra",
-            "steps": 25,
+            "steps": 30,
+            "options": {
+                "reasoning": {
+                    "effort": "medium"
+                }
+            },
             "permission": {
                 "task": "deny",
                 "agent_manager": "deny",
@@ -777,12 +1162,42 @@
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
                     "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
                     "deno test*": "allow",
                     "deno check*": "allow",
                     "deno lint*": "allow",
@@ -797,6 +1212,13 @@
                     "python3 -m pytest*": "allow",
                     "python -m unittest*": "allow",
                     "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
                     "mypy *": "allow",
                     "pyright*": "allow",
@@ -806,6 +1228,9 @@
                     "go test*": "allow",
                     "go vet*": "allow",
                     "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow",
                     "git add*": "deny",
                     "git stash*": "deny",
                     "git commit*": "deny",
@@ -829,10 +1254,15 @@
             }
         },
         "deep-surgeon": {
-            "description": "High-complexity specialist (Gemini 4 Argon) with native Gemini coding prompt intact for hard escalations, subtle concurrency/security invariants, or cross-module synthesis in an isolated subagent transcript.",
+            "description": "Highest-tier escalation specialist (Gemini 4 Argon, high effort) with native Gemini coding prompt intact. Reserve deliberately for subtle concurrency/race conditions, complex state-machine or security invariants, or escalations where Terra (@mid-surgeon / code-pinned) has stalled.",
             "mode": "subagent",
             "model": "openrouter/google/gemini-4-argon",
-            "steps": 30,
+            "steps": 35,
+            "options": {
+                "reasoning": {
+                    "effort": "high"
+                }
+            },
             "permission": {
                 "task": "deny",
                 "agent_manager": "deny",
@@ -855,12 +1285,42 @@
                     "npm run test*": "allow",
                     "npm run lint*": "allow",
                     "npm run typecheck*": "allow",
+                    "npm run check*": "allow",
+                    "npm run build*": "allow",
+                    "npx tsc*": "allow",
+                    "npx vitest*": "allow",
+                    "npx jest*": "allow",
+                    "npx eslint*": "allow",
+                    "npx prettier --check*": "allow",
+                    "npx biome *": "allow",
                     "pnpm test*": "allow",
+                    "pnpm typecheck*": "allow",
+                    "pnpm lint*": "allow",
+                    "pnpm check*": "allow",
+                    "pnpm build*": "allow",
                     "pnpm run test*": "allow",
                     "pnpm run lint*": "allow",
                     "pnpm run typecheck*": "allow",
+                    "pnpm run check*": "allow",
+                    "pnpm run build*": "allow",
+                    "pnpm exec tsc*": "allow",
+                    "pnpm exec vitest*": "allow",
+                    "pnpm exec jest*": "allow",
+                    "pnpm exec eslint*": "allow",
+                    "pnpm --filter * test*": "allow",
+                    "pnpm --filter * lint*": "allow",
+                    "pnpm --filter * typecheck*": "allow",
+                    "pnpm --filter * check*": "allow",
+                    "pnpm --filter * build*": "allow",
                     "yarn test*": "allow",
+                    "yarn lint*": "allow",
+                    "yarn typecheck*": "allow",
+                    "yarn build*": "allow",
                     "bun test*": "allow",
+                    "bun run test*": "allow",
+                    "bun run lint*": "allow",
+                    "bun run typecheck*": "allow",
+                    "bun run build*": "allow",
                     "deno test*": "allow",
                     "deno check*": "allow",
                     "deno lint*": "allow",
@@ -875,6 +1335,13 @@
                     "python3 -m pytest*": "allow",
                     "python -m unittest*": "allow",
                     "python3 -m unittest*": "allow",
+                    "uv run pytest*": "allow",
+                    "uv run ruff*": "allow",
+                    "uv run mypy*": "allow",
+                    "uv run pyright*": "allow",
+                    "poetry run pytest*": "allow",
+                    "poetry run ruff*": "allow",
+                    "poetry run mypy*": "allow",
                     "ruff *": "allow",
                     "mypy *": "allow",
                     "pyright*": "allow",
@@ -884,6 +1351,9 @@
                     "go test*": "allow",
                     "go vet*": "allow",
                     "golangci-lint*": "allow",
+                    "make test*": "allow",
+                    "make check*": "allow",
+                    "make lint*": "allow",
                     "git add*": "deny",
                     "git stash*": "deny",
                     "git commit*": "deny",
@@ -907,7 +1377,7 @@
             }
         },
         "local-scout": {
-            "description": "Read-only local inference helper (Ollama qwen3-coder:30b, zero model API generation charge) for bounded file inspection and summarizing prepared log or diff files.",
+            "description": "Local model generation (Ollama qwen3-coder:30b) with no API generation charge; searches through Kilo's native read/grep/glob tools. Shell access disabled.",
             "mode": "subagent",
             "model": "ollama/qwen3-coder:30b",
             "steps": 8,

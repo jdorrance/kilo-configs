@@ -1,26 +1,40 @@
 # Global Orchestration & Worker Policy (`AGENTS.md`)
 
-Optimize total cost and time to a verified, working result while preserving Kilo's native agent workflows.
+Optimize total cost and time to a verified, working result while preserving Kilo's native role behavior, model-dependent prompting where applicable, and permission guards.
 
 ## Core Operating Principles
-1. **Read Known, Bounded Source Directly**: Complete localized edits and targeted reads (`grep`, `glob`, line-ranged `read` with `offset` and `limit`, and `semantic_search`) directly in the active agent when the relevant files or symbols are known. Reuse context already present in your session or delegation brief instead of re-reading unchanged files.
-2. **Delegate Only When It Prevents Bulk Ingestion or Isolates Independent Work**:
-   - Delegating already-cached parent context to a cheap subagent saves almost nothing on input tokens while adding orchestration latency. Delegate when it prevents the parent from ingesting *new* bulky material or executes an independent subtask:
-   - **Broad Repository Discovery (`@explore` / `@file-picker`)**: Delegate unfamiliar multi-directory exploration to `@explore`, or use `@file-picker` when you want a structured inventory of `path:startLine-endLine` hints, verbatim signatures, and callers before partitioning multi-worker edits.
-   - **Long Documentation & External Spec Synthesis (`@doc-summarizer`)**: Delegate long markdown specs, PRDs, `context7` library documentation lookups, and `webfetch`/`websearch` research to `@doc-summarizer` (available from `code`, `plan`, and `debug`) before pulling large raw docs into the parent session.
-   - **Noisy Logs & Diffs (`@local-scout`)**: Capture verbose test/build output or large diffs to a file in `.kilo/logs/` (or `/tmp/`) while preserving exit status, filter deterministically with `rg`/`jq` where possible, and pass the file path to `@local-scout` (`ollama/qwen3-coder:30b`) before the parent ingests the raw output.
-   - **Ambiguous Shortlist Reranking (`jev_jev_find` / `jev_jev_rerank`)**: Use Jev reranking selectively when an already retrieved shortlist of bounded snippets (<2,000 chars each) remains genuinely ambiguous.
-3. **Inspect Current Source & Contracts Before Editing**:
-   - Treat scout `path:startLine-endLine` ranges as navigation hints, not proof of correctness. Read the current relevant source before your first edit, and reread or expand to callers, types, tests, and surrounding logic whenever it may have changed or required context is missing.
-4. **Choose the Right Worker Tier Immediately & Keep Productive Loops Together**:
-   - Do not interrupt a coherent implementation and verification loop based on an arbitrary turn count.
-   - When delegating implementation (`@fast-worker`, `@mid-surgeon`, `@deep-surgeon`, or `@general`), choose the lowest-cost worker likely to finish on the first pass—skip cheaper tiers immediately when architectural or cross-module difficulty is already evident.
-5. **Reuse Existing Code & Dependencies (YAGNI)**: Prefer existing project helpers, language stdlib, and already-installed packages over new code or abstractions (load `ponytail-yagni` when designing modules/refactors). Honor dependency additions already authorized by the task; ask when a new package introduces a meaningful tradeoff.
-6. **Parent-Owned Git Integration & Shared-Tree Safety**:
-   - Subagents launched via `task` share the parent's working tree and Git index. Workers must modify only their assigned writable paths and avoid running `git stash`, `git add`, or `git commit`—the parent session owns staging and integration.
-   - Use `agent_manager` (`mode: "worktree"`) when independent workers need to mutate overlapping project state, shared configs, or lockfiles in parallel.
-7. **Subagent Handoff, Same-Tier Resumption & Fresh-Task Escalation**:
-   - **Parent Brief**: Specify (a) Goal and acceptance criteria, (b) Initial files/symbols/contracts, (c) Writable path boundaries, and (d) Verification commands.
-   - **Resume for Same Worker/Model; Start Fresh When Escalating Tier**: Resume an existing `task_id` only when continuing the **same worker and model tier**. Because a resumed child's stored model overrides a newly selected subagent's default model, always start a **new task** (without `task_id`) when escalating to a different model tier, passing the previous findings, failed hypotheses, changed files, and validation evidence.
-   - **Minimal Sufficient Return Report**: Report **Status** (`complete` | `partial` | `blocked`), **Changes** (paths/symbols), **Validation** (exact command, `passed` | `failed` | `not run`, and decisive failure excerpt—do not paste full passing test logs into the parent), and **Residual Risks**.
-8. **Risk-Bounded Empirical Verification**: Establish an affected test baseline when it helps distinguish pre-existing failures, avoiding repeated unchanged full-suite runs. Run the smallest relevant test, typecheck, or lint command covering the touched code, broaden to package/integration suites when shared contracts change, and stop once acceptance criteria are verified (load `verification-and-debugging` for complex bug triage, and `jev-judgment` when using `jev_jev_decide`, `jev_jev_review`, or `jev_jev_gate`).
+
+1. **Flash-First Default Ownership & Reasoning Ladder**:
+   - **Routine work (`Flash low`)**: `openrouter/deepseek/deepseek-v4.1-flash` (`code`, `general`, `fast-worker`, `ask` at `low` effort) owns routine features, bug fixes, API/UI wiring, refactors, and tests when contracts are clear and verification is available.
+   - **Bounded deeper diagnosis or planning (`Flash high`)**: Use `debug` or `plan` (or select the `high` variant on Flash) when a bounded problem with clear contracts needs deeper reasoning before jumping to a premium tier.
+   - **Specialist escalation (`Terra medium` / `Argon high`)**: Escalate from **any** cheap execution agent (`code`, `general`, `debug`, `fast-worker`) to `@mid-surgeon` (`openai/gpt-6.1-terra`, `medium`) or `@deep-surgeon` (`google/gemini-4-argon`, `high`) when the task brief or observed evidence identifies an unresolved invariant, conflicting contract, difficult failed hypothesis, or substantive design decision. A failed cheap attempt is **not** required when the need for stronger reasoning is already clear.
+   - **Progress Rule**: After two materially different attempts without progress on the same acceptance failure, stop and return evidence. Escalate earlier when the blocker is already clear. Continue while making demonstrable progress within scope.
+   - **Stronger Planning Escape Route**: `plan` mode restricts `task` delegation to read-only scouts (`@explore`, `@doc-summarizer`, `@file-picker`, `@local-scout`). When planning requires stronger reasoning than Flash `high`, start a stronger native `Plan` session with a compact handoff while preserving `Plan`'s source-edit restrictions.
+
+2. **Failure Handling Taxonomy (Parent vs. Subagent Responsibilities)**:
+   | Failure Type | Correct Response |
+   |---|---|
+   | Wrong implementation or unresolved reasoning | Repair in place, try Flash `high` for bounded diagnosis, or escalate to `@mid-surgeon` / `@deep-surgeon` based on evidence |
+   | Permission denied | Fix the permission or workflow issue; do not escalate model tier |
+   | Missing dependency or broken test environment | Resolve the environment or report the exact missing prerequisite |
+   | Missing product requirement | **Primary agents** ask the user (`question` tool). **Subagents** (`question: "deny"`) return the question, affected scope, and blocker to the parent |
+   | Scope needs to expand beyond assignment | Return the proposed scope change and reason to the parent |
+
+3. **Targeted Direct Reads vs. Selective Scout Delegation**:
+   - Complete localized edits and targeted reads (`grep`, `glob`, line-ranged `read` with `offset` and `limit`, and `semantic_search`) directly in the active agent when relevant files or symbols are known.
+   - **Broad Repository Discovery (`@explore` / `@file-picker`)**: Delegate unfamiliar multi-directory exploration to `@explore`, or use `@file-picker` for a structured inventory of `path:startLine-endLine` hints, verbatim signatures, and callers. Flat subagents (`task: "deny"`) perform bounded discovery themselves or return the discovery need to the parent.
+   - **Long Documentation & External Specs (`@doc-summarizer`)**: Delegate long markdown specs, PRDs, `context7_*` library lookups, and `webfetch`/`websearch` research to `@doc-summarizer`.
+   - **Large Tool Output, Logs & Diffs (`@local-scout` with Fallback)**: Reuse Kilo's full-output file when one is provided by a truncated shell result, or capture proactively to `.kilo/logs/` or `/tmp/` when large output is expected (preserving exit status); avoid rerunning commands merely to create a second log. Use `@local-scout` (`ollama/qwen3-coder:30b`, native `read`/`grep`/`glob` only, shell disabled) when Ollama and the model are available and responsive, and the task benefits from local processing. Otherwise use bounded native filtering (`grep`/`read`) or a Flash scout (`@doc-summarizer` / `@explore`).
+
+4. **Flexible Task Briefs (Avoid Duplicated Parent Discovery)**:
+   - Provide the **goal**, **acceptance criteria**, **writable scope** (exact files, or an appropriate module/directory when exact files are unknown), **known starting points**, **relevant contracts**, and the **smallest relevant verification set** (using the repository's canonical test/typecheck scripts).
+   - Mark unknown locations explicitly. Provide an existing `path:line` pattern when one is known; do not invent a reference or perform redundant discovery solely to complete the brief.
+
+5. **Shared-Tree Escalation vs. Isolated Agent Manager Worktrees**:
+   - **Shared-Tree `task` Subagents**: Subagents share the parent's working tree and Git index (`task: "deny"`). Workers modify only their writable scope and never run `git stash`, `git add`, or `git commit`.
+     - Reuse `task_id` **only** when continuing the same worker and model tier.
+     - Start a **fresh `task`** (omit `task_id`) when changing model tiers, and include a **Shared-Worktree Escalation Packet**: (1) unresolved question, (2) acceptance criteria, (3) current modified files and relevant changed hunks (focused diffs or `path:line` references), (4) exact failing command and decisive output, (5) attempts already made, and (6) which partial changes in the shared worktree are intentional and should be retained versus reverted.
+   - **Isolated Agent Manager Worktrees (`agent_manager` with `mode: "worktree"`)**: Use when parallel tasks touch overlapping files, shared configs, or lockfiles.
+     - Because Agent Manager inherits the invoking turn's model and variant when omitted and requires a selectable **primary** agent, **explicitly set `"agent": "code"`, `"model": "openrouter/deepseek/deepseek-v4.1-flash"`, and `"variant": "low"`** on routine Agent Manager sessions. Select a premium model (`code-pinned` / Terra) only when the worktree assignment independently meets the escalation criteria.
+     - Always specify the intended base branch. A new worktree starts from a committed branch and does **not** automatically contain uncommitted changes from the parent checkout—keep branch-based worktree handoffs distinct from shared-worktree escalation packets.
+   - **On-Demand Skills**: Load `cost-tier-delegation` for multi-worker orchestration, `ponytail-yagni` for module/refactor design, `verification-and-debugging` for complex triage, and `jev-judgment` for `jev_jev_decide`, `jev_jev_review`, or `jev_jev_gate`.
