@@ -57,7 +57,7 @@
             },
             "models": {
                 "typesafe/jev-router": {
-                    "name": "Jev Router (Balanced Core Pool)",
+                    "name": "Jev Router (Preferred Core Pool)",
                     "id": "typesafe/jev-router",
                     "tool_call": true,
                     "reasoning": true,
@@ -82,7 +82,8 @@
                         "provider": {
                             "allow_fallbacks": true,
                             "ignore": [
-                                "azure"
+                                "azure",
+                                "amazon-bedrock"
                             ]
                         },
                         "plugins": [
@@ -132,7 +133,8 @@
                         "provider": {
                             "allow_fallbacks": true,
                             "ignore": [
-                                "azure"
+                                "azure",
+                                "amazon-bedrock"
                             ]
                         },
                         "plugins": [
@@ -182,7 +184,8 @@
                         "provider": {
                             "allow_fallbacks": true,
                             "ignore": [
-                                "azure"
+                                "azure",
+                                "amazon-bedrock"
                             ]
                         },
                         "plugins": [
@@ -218,9 +221,8 @@
                     "id": "openai/gpt-6-luna",
                     "options": {
                         "provider": {
-                            "allow_fallbacks": true,
-                            "ignore": [
-                                "azure"
+                            "only": [
+                                "openai"
                             ]
                         }
                     }
@@ -230,9 +232,8 @@
                     "id": "openai/gpt-6.1-terra",
                     "options": {
                         "provider": {
-                            "allow_fallbacks": true,
-                            "ignore": [
-                                "azure"
+                            "only": [
+                                "openai"
                             ]
                         }
                     }
@@ -242,9 +243,8 @@
                     "id": "openai/gpt-6.1-sol",
                     "options": {
                         "provider": {
-                            "allow_fallbacks": true,
-                            "ignore": [
-                                "azure"
+                            "only": [
+                                "openai"
                             ]
                         }
                     }
@@ -259,12 +259,9 @@
                     }
                 },
                 "anthropic/claude-sonnet-5.5": {
-                    "name": "Claude Sonnet 5.5 (Direct Flagship, Auto-Cached)",
+                    "name": "Claude Sonnet 5.5 (Direct Flagship)",
                     "id": "anthropic/claude-sonnet-5.5",
                     "options": {
-                        "cache_control": {
-                            "type": "ephemeral"
-                        },
                         "provider": {
                             "only": [
                                 "anthropic"
@@ -273,12 +270,9 @@
                     }
                 },
                 "anthropic/claude-opus-5.5": {
-                    "name": "Claude Opus 5.5 (Manual Only - Strict Opus, Auto-Cached)",
+                    "name": "Claude Opus 5.5 (Manual Only - Strict Opus)",
                     "id": "anthropic/claude-opus-5.5",
                     "options": {
-                        "cache_control": {
-                            "type": "ephemeral"
-                        },
                         "provider": {
                             "only": [
                                 "anthropic"
@@ -309,7 +303,47 @@
     "agent": {
         "code": {
             "mode": "primary",
-            "model": "openrouter/typesafe/jev-router"
+            "model": "openrouter/typesafe/jev-router",
+            "permission": {
+                "bash": {
+                    "*": "ask",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "pwd": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "which *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "npm test*": "allow",
+                    "pnpm test*": "allow",
+                    "yarn test*": "allow",
+                    "bun test*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
+                    "pytest*": "allow",
+                    "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "cargo clippy*": "allow",
+                    "go test*": "allow",
+                    "go vet*": "allow",
+                    "golangci-lint*": "allow"
+                }
+            }
         },
         "code-pinned": {
             "description": "Fixed-model primary coding mode (GPT-6.1 Terra) with native Code permissions, GPT system prompt, and apply_patch active for sustained single-model sessions.",
@@ -318,7 +352,45 @@
             "permission": {
                 "question": "allow",
                 "suggest": "allow",
-                "plan_enter": "allow"
+                "plan_enter": "allow",
+                "bash": {
+                    "*": "ask",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "pwd": "allow",
+                    "wc *": "allow",
+                    "stat *": "allow",
+                    "file *": "allow",
+                    "which *": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "git blame*": "allow",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git ls-files*": "allow",
+                    "npm test*": "allow",
+                    "pnpm test*": "allow",
+                    "yarn test*": "allow",
+                    "bun test*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "eslint*": "allow",
+                    "prettier*": "allow",
+                    "biome *": "allow",
+                    "pytest*": "allow",
+                    "ruff *": "allow",
+                    "mypy *": "allow",
+                    "pyright*": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "cargo clippy*": "allow",
+                    "go test*": "allow",
+                    "go vet*": "allow",
+                    "golangci-lint*": "allow"
+                }
             }
         },
         "plan": {
@@ -351,8 +423,39 @@
         "general": {
             "model": "openrouter/openai/gpt-6.1-terra",
             "permission": {
+                "task": "deny",
+                "agent_manager": "deny",
                 "todowrite": "deny",
-                "agent_manager": "deny"
+                "jev_*": "deny",
+                "bash": {
+                    "*": "ask",
+                    "ls": "allow",
+                    "ls *": "allow",
+                    "pwd": "allow",
+                    "git status*": "allow",
+                    "git diff*": "allow",
+                    "git log*": "allow",
+                    "git show*": "allow",
+                    "npm test*": "allow",
+                    "pnpm test*": "allow",
+                    "bun test*": "allow",
+                    "tsc*": "allow",
+                    "vitest*": "allow",
+                    "jest*": "allow",
+                    "pytest*": "allow",
+                    "ruff *": "allow",
+                    "cargo test*": "allow",
+                    "cargo check*": "allow",
+                    "go test*": "allow",
+                    "git add*": "deny",
+                    "git stash*": "deny",
+                    "git commit*": "deny",
+                    "git push*": "deny",
+                    "git reset --hard*": "deny",
+                    "git clean -f*": "deny",
+                    "rm -rf *": "deny",
+                    "sudo *": "deny"
+                }
             }
         },
         "explore": {
@@ -372,15 +475,17 @@
             },
             "prompt": "{file:./prompts/file-picker.md}",
             "permission": {
-                "edit": "deny",
-                "bash": "deny",
-                "task": "deny",
-                "agent_manager": "deny",
-                "todowrite": "deny",
-                "context7_*": "deny",
-                "jev_*": "deny",
+                "*": "deny",
+                "read": "allow",
+                "glob": "allow",
+                "grep": "allow",
+                "list": "allow",
+                "semantic_search": "allow",
+                "skill": "allow",
                 "jev_jev_find": "allow",
-                "jev_jev_rerank": "allow"
+                "jev_jev_rerank": "allow",
+                "board_read": "allow",
+                "board_post": "allow"
             }
         },
         "fast-worker": {
