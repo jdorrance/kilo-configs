@@ -1,47 +1,50 @@
 # Global Orchestration, Caching & Delegation Policy (`AGENTS.md`)
 
-Optimize total cost and time to a verified, working result while preserving Kilo's native agent workflows.
+Optimize total cost and time to a verified, working result while preserving Kilo's native agent workflows and model-specific system prompts.
 
-## 1. Discovery Order & Context Hygiene
-Complete small, localized tasks directly without unnecessary subagent overhead. When discovering code or library APIs, follow this hierarchy:
-1. **Exact Symbol / Path / Error Search**: Use `grep`, `glob`, and targeted line-ranged `read` (`offset` and `limit`) over broad file dumps.
-2. **Semantic Search (`semantic_search`)**: Use Kilo's native LanceDB `semantic_search` tool when looking for conceptual behavior ("where is auth token refresh handled?") rather than an exact identifier.
-3. **Version-Specific Library Docs (`context7`)**: When working with external libraries/SDKs where API signatures might have changed, use `context7` (`resolve-library-id` -> `query-docs`) instead of guessing and burning build/retry turns.
-4. **Scout Delegation (`@explore`, `@file-picker`, `@local-scout`)**: Delegate broad multi-step exploration across unfamiliar directories to `@explore` (or `@file-picker` for a structured symbol/contract inventory, or `@local-scout` for local inference with no model API charge). Use `background: true` when launching independent discovery scouts in parallel.
-5. **Ambiguous Shortlist Reranking (`jev_find` / `jev_rerank`)**: Use Jev reranking only when an already retrieved shortlist of bounded snippets (<2,000 chars each) remains ambiguous.
+## 1. Discovery Default & Opt-In Scouts
+Complete localized tasks directly without unnecessary subagent or MCP overhead:
+- **Default Discovery Path**: Start with direct `grep`, `glob`, targeted line-ranged `read` (`offset` and `limit`), and native LanceDB `semantic_search` (`codebase_search`). For broader multi-step exploration across unfamiliar directories, default to Kilo's native `@explore` subagent (`background: true` when parallelizing).
+- **Opt-In Specialized Tools (Use Only When Their Contract Wins & Permitted by Your Role)**:
+  - **`context7` (`resolve-library-id` -> `query-docs`)**: Call only when working with external libraries/SDKs where version-specific signatures are uncertain.
+  - **`@file-picker`**: Call instead of `@explore` only when you need a strict structured inventory of file/symbol spans, contracts, and side effects to partition work across multiple implementation subagents.
+  - **`@local-scout`**: Call for local Ollama (`qwen3-coder:30b`) summarization of large files, git diffs, or verbose test/build logs with no model API inference charge.
+  - **`jev_find` / `jev_rerank`**: Call only when an already retrieved shortlist of bounded snippets (<2,000 chars each) remains genuinely ambiguous—never chain by default after routine searches.
 
-Expand your direct reading whenever callers, interfaces, tests, or project rules are needed for correctness.
+Expand direct reading whenever callers, interfaces, tests, or project rules are needed for correctness.
 
 ## 2. The YAGNI Ladder (Ponytail Principle)
-Before writing new code or abstractions, step through this ladder in order (load the `ponytail-yagni` skill when designing new modules or refactors):
+Before writing new code or abstractions, step through this ladder in order (if your role permits the `skill` tool, load `ponytail-yagni` when designing new modules or refactors):
 1. **Does it need to exist?** If a feature, wrapper, or abstraction is not required by the spec or a concrete invariant, do not write it.
 2. **Already in the repo?** Reuse existing helpers, types, and conventions in the codebase.
 3. **Stdlib / platform?** Prefer built-in language or runtime primitives over custom utilities.
-4. **Existing dependency?** Use packages already present in `package.json`, `pyproject.toml`, `Cargo.toml`, or `go.mod` before writing custom logic.
+4. **Existing dependency?** Prefer packages already present in `package.json`, `pyproject.toml`, `Cargo.toml`, or `go.mod` over custom logic. Avoid speculative dependency additions, honor dependency authorization already present in the user's task, and ask when adding a package introduces a meaningful new tradeoff.
 5. **One-liner / simple function?** Prefer a direct function over a new class, factory, or indirection layer.
 6. **Minimal implementation**: Write the smallest, clearest code that satisfies the requirement and passes verification.
 
-## 3. Router vs. Pinned Subagents (Cache Continuity Rule)
-- **Use the Router for Orchestration & Short Turns**: The primary session uses `typesafe/jev-router` to adaptively pick models per request. However, switching models mid-loop invalidates the provider KV cache.
-- **Prefer Pinned Subagents for Multi-Turn Edit/Test Loops (>3–5 Turns)**: Whenever a task involves a sustained multi-step edit/test/repair loop, delegate that loop to a pinned subagent (`@fast-worker`, `@mid-surgeon`, or `@deep-surgeon`)—or switch the session to a direct pinned model (`gpt-6.1-terra`, `gpt-6.1-sol`, `gemini-4-argon`, `claude-sonnet-5.5`)—so the entire tool loop runs against a warm single-model KV cache.
-- **Choose the Initial Worker by Complexity & Risk**:
-  - **`@fast-worker`** (`deepseek/deepseek-v4.1-flash`): Tightly scoped mechanical edits (boilerplate, schemas/types, CRUD, UI components, formatting, routine unit tests).
-  - **`@mid-surgeon`** (`openai/gpt-6.1-terra`): Standard multi-file features, state/API wiring, migrations, and non-trivial refactors.
-  - **`@deep-surgeon`** (`google/gemini-4-argon`): Complex concurrency/async synchronization, security/auth/crypto, hard algorithms, or escalations when a task exceeds a lower worker's scope.
+## 3. Continuity-Based Execution & Delegation
+- **Keep Coherent Loops Together**: Keep a coherent implementation and verification loop with its current agent while it is making progress. Do not force premature subagent handoffs based on an arbitrary turn count; `typesafe/jev-router` can retain a model across related turns, and switching to `code-pinned` (`gpt-6.1-terra`) locks single-model prefix continuity and native GPT `apply_patch` tool selection for long single-thread sessions.
+- **Leverage Native `plan` and `debug` Modes First**:
+  - Use native **`plan`** (writes specs to `.kilo/plans/`) for architectural design and specification before implementation.
+  - Use native **`debug`** (`jev-router-high`) for systematic root-cause diagnosis before escalating to `@deep-surgeon`.
+- **When to Delegate to Model-Pinned Subagents**: Delegate when a subtask is independently executable, benefits from isolating a large or noisy working set in a separate context window, or needs a specific model tier/capability (`@general` on `gpt-6.1-terra` is also available for general subtasks):
+  - **`@fast-worker`** (`deepseek/deepseek-v4.1-flash`): Bounded mechanical edits (boilerplate, schemas/types, CRUD, UI components, formatting, routine unit tests).
+  - **`@mid-surgeon`** (`openai/gpt-6.1-terra`): Multi-file feature implementation, state/API wiring, migrations, and non-trivial refactors.
+  - **`@deep-surgeon`** (`google/gemini-4-argon`): Complex concurrency/async synchronization, security/auth/crypto invariants, hard algorithms, or escalations when `debug` or `@mid-surgeon` is blocked.
 
-### Handoff, Ownership & Escalation Rules
-- **Standardized Delegation Brief**: When delegating a task, provide:
-  1. Goal and acceptance criteria.
-  2. Initial files, symbols, and known contracts/invariants (treat line numbers as navigation hints).
-  3. Writable path boundaries (assign disjoint writable paths to concurrent workers, or serialize overlapping edits).
-  4. Required verification commands.
-- **Resume Existing Child Sessions**: When iterating on a worker's recent patch, resume its existing `task_id` rather than spawning a fresh worker so its cached context stays warm.
+### Shared Implementation & Subagent Handoff Contract
+Because `@fast-worker`, `@mid-surgeon`, and `@deep-surgeon` intentionally omit custom `prompt` overrides so they retain Kilo's native model-specific coding prompts (`SystemPrompt.provider(input.model)`), all delegated implementation subagents follow this shared contract:
+1. **Parent Delegation Brief**: Provide (a) Goal and acceptance criteria, (b) Initial files, symbols, and known contracts (treat line numbers as navigation hints), (c) Writable path boundaries, and (d) Verification commands.
+2. **Worker Execution Rules**:
+   - Inspect surrounding context, callers, and types before editing, and modify only the writable paths assigned in the brief.
+   - Escalate early (`status: blocked` with exact `path:line` and evidence) if you uncover cross-cutting architectural conflicts, concurrency hazards, or security invariants that exceed your brief or capability tier.
+   - Return a concise handoff report covering: **Status** (`complete`, `partial`, or `blocked`), **Changes** (modified paths and symbols), **Validation** (exact commands run and whether each `passed`, `failed`, or was `not run`), and **Assumptions / Residual Risks**.
+3. **Parallel Isolation & Resumption**:
+   - Prefer **Agent Manager worktree sessions** (`agent_manager` with `mode: "worktree"`) for large or independent parallel feature streams so each stream gets an isolated `.kilo/worktrees/` checkout, branch, and terminal.
+   - For coupled subtasks within the same branch, use `task` subagents with strictly disjoint writable paths (or serialize overlapping edits), and use `board_post` / `board_read` when available in your role to share material interface updates.
+   - Resume an existing child's `task_id` for follow-up iterations rather than spawning a fresh worker.
 
 ## 4. Selective Use of Jev (`@jkudish/jev-mcp`) & Verification
-Use Jev selectively for bounded judgments where a fast typed check saves multi-turn deliberation (load the `jev-judgment` skill for exact tool schemas, and the `verification-and-debugging` skill for systematic root-cause debugging):
-- **`jev_decide` Outcomes**: Inspect `recommendation.selected` and `status`:
-  - `ask_user`: ask the user for the missing preference or authorization.
-  - `investigate`: gather the missing technical fact from the repository.
-  - `none`: reconsider the candidate set.
-  - `status: "escalate"` / `selected: null`: resolve the contradicted requirement before acting.
-- **Verification Before Completion**: Use relevant tests, reproduction steps, typechecks, and direct review of the integrated diff as primary completion evidence. Use `jev_review` or `jev_gate` selectively on non-trivial diffs as an advisory second opinion (pass actual test/check output inside `evidence` for `jev_gate`, and avoid serializing large diffs into tool arguments for minor edits). Never treat a passing Jev score as proof of "zero regressions."
+When Jev tools are available in your role, use them only when a bounded judgment saves multi-turn deliberation (load `jev-judgment` for schemas, and `verification-and-debugging` for root-cause debugging):
+- **`jev_decide` Outcomes**: Inspect `recommendation.selected` and `status` (`ask_user` -> ask user; `investigate` -> gather missing repo fact; `none` -> reconsider candidates; `status: "escalate"` / `selected: null` -> resolve contradicted requirement before acting).
+- **Verification Before Completion**: Use relevant tests, reproduction checks, typechecks, and direct diff inspection as primary completion evidence. Use `jev_review` or `jev_gate` selectively on non-trivial diffs as an advisory second opinion (pass actual test/check output in `evidence` for `jev_gate`, and do not run both redundantly on the same diff). Never treat Jev's reported confidence or score as proof of "zero regressions."

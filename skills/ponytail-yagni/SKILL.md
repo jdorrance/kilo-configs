@@ -20,7 +20,8 @@ Output tokens are 5x–20x more expensive than input tokens, and every unnecessa
    - Use native platform primitives (e.g., `URL`, `structuredClone`, `AbortSignal.timeout`, `Promise.withResolvers`, `crypto.randomUUID`, `path`, `fs/promises`, `itertools`, `collections`, `contextlib`, `std::sync`) instead of hand-rolling helpers.
 
 4. **Rung 4 — Is it in an already-installed dependency?**
-   - Check `package.json`, `pyproject.toml`, `Cargo.toml`, or `go.mod`. If a library already in the dependency tree solves the problem, use it (check exact syntax via `context7` if uncertain) rather than writing custom parsing/validation/retry logic. Never install a *new* dependency without explicit user approval.
+   - Check `package.json`, `pyproject.toml`, `Cargo.toml`, or `go.mod`. If a library already in the dependency tree solves the problem, use it (check exact syntax via `context7` if uncertain) rather than writing custom parsing/validation/retry logic.
+   - Avoid speculative new dependencies; honor dependency authorization already implied by the user's task, and ask when introducing a new package adds a meaningful architectural, bundle-size, or maintenance tradeoff.
 
 5. **Rung 5 — Can it be a direct expression or single function?**
    - Prefer a pure function or inline expression over a class, builder, factory, or manager object.
