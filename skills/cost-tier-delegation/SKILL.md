@@ -1,31 +1,33 @@
 ---
 name: cost-tier-delegation
-description: Playbook for continuity-based delegation across primary modes, shared-tree subagents (@fast-worker, @mid-surgeon, @deep-surgeon), and isolated Agent Manager git worktrees. Load only when decomposing multi-step or parallel work.
+description: Playbook for continuity-based delegation across primary modes, shared-tree subagents (@doc-summarizer, @file-picker, @local-scout, @fast-worker, @mid-surgeon, @deep-surgeon), and isolated Agent Manager git worktrees. Load only when decomposing multi-step or parallel work.
 ---
 
 # Continuity-Based Delegation & Parallel Worktree Playbook
 
 Use this playbook when deciding whether to keep work in the current agent, delegate to shared-tree `task` subagents, or use Agent Manager git worktrees.
 
-## 1. Routing, Failover, and Evidence-Based Escalation
-- **`options.provider.allow_fallbacks`**: Fails over across hosting providers for the *same* model (with `azure` ignored on OpenAI routes so encrypted reasoning blobs never mix across OpenAI and Azure).
-- **`options.models`**: Fails over to alternate models only on request/API errors; omitted on coding workers so they remain strictly pinned to their target model identity.
-- **Evidence-Based Escalation**: Escalate (`@fast-worker` -> `@mid-surgeon` -> `@deep-surgeon`, or swap to a fresh model/hypothesis) only when concrete evidence shows an unresolved invariant, conflicting contract, failed verification hypothesis, or scope expanding beyond assigned writable paths—not merely because a file contains async or auth code.
+## 1. Direct Execution vs. Targeted Delegation (Cache Economics First)
+- **Why Already-Cached Parent Context Should Stay in the Parent**:
+  - Cached input on `openai/gpt-6.1-terra` ($0.05/M tokens) costs almost the same as uncached input on `deepseek/deepseek-v4.1-flash` ($0.045/M tokens). Delegating context the parent has *already* cached saves almost nothing on input while adding orchestration overhead, extra output tokens, and latency.
+  - Delegate only when it **prevents the parent from ingesting new bulky material**, isolates an independent noisy subtask, or substitutes a much cheaper end-to-end completion.
+- **When to Delegate Discovery & Summarization (Before the Parent Ingests Bulk Source)**:
+  - **`@explore`**: Unknown ownership across unfamiliar directories.
+  - **`@file-picker`**: When you need a structured inventory of `path:startLine-endLine` spans, verbatim signatures, and callers to partition work across implementation subagents.
+  - **`@doc-summarizer`**: Long external library documentation (`context7_*`), web pages (`webfetch` / `websearch`), or lengthy markdown specs/PRDs (callable from `code`, `plan`, and `debug`).
+  - **`@local-scout`**: Verbose local build/test logs or large diffs saved to `.kilo/logs/` or `/tmp/` (pass the file path after any deterministic `rg`/`jq` filtering so the parent never ingests the raw log).
 
-## 2. Continuity-Based Execution vs. Delegation
-- **Keep Coherent Loops Together**: Keep an active implementation and verification loop with its current worker while it is making progress.
-- **When to Use `code` vs. `code-pinned` (or Direct Terra on `code`)**:
-  - Use **`code`** (`typesafe/jev-router`) when you want adaptive model/effort selection across `deepseek-v4.1-flash`, `gpt-6-luna`, `gpt-6.1-terra`, and `gpt-6.1-sol`. Note that `typesafe/jev-router` is opaque to Kilo at request construction time, so Kilo uses generic model prompts/tools rather than model-specific `apply_patch`.
-  - Switch to **`code-pinned`** (`gpt-6.1-terra`, configured with native `question`, `suggest`, and `plan_enter` permissions) or select `openrouter/openai/gpt-6.1-terra` directly on `code` when you want known GPT model identity (`apply_patch` + GPT prompt) and single-model prefix cache affinity.
-- **Delegate When Work is Separable or Context-Heavy**:
-  - Delegate to `@fast-worker` (`deepseek-v4.1-flash`, `reasoning.effort: "low"`), `@mid-surgeon` (`gpt-6.1-terra`), `@deep-surgeon` (`gemini-4-argon`), or `@general` (`gpt-6.1-terra`) when a subtask is independently executable or isolates noisy exploration/test output from the parent transcript.
-  - Pass file paths (rather than pasting huge logs) when delegating to `@local-scout` so the parent context stays small.
-- **Resume `task_id` on Follow-Ups**: Pass the returned `task_id` back to `task` when iterating on a child agent's work (including when a child hits its `steps` ceiling before verification).
+## 2. Worker Selection, Same-Tier Resumption & Fresh-Task Escalation
+- **Choose the Right Tier Immediately**: Pick the lowest-cost worker (`@fast-worker`, `@mid-surgeon`, `@deep-surgeon`, or `@general`) likely to finish cleanly. Skip cheaper tiers immediately when cross-module invariants, subtle concurrency/state requirements, or complex debugging are already evident.
+- **Keep Coherent Loops Together**: Keep an active edit/test/verify loop with its current worker while it is making progress. Read current relevant source before the first edit, and reread or expand to callers/types/tests when source may have changed or context is missing.
+- **Resume for Same Worker/Model; Start Fresh When Escalating Tier**:
+  - Pass the returned `task_id` back to `task` **only** when continuing the same worker and model tier.
+  - In Kilo's `task.ts`, a resumed child session's stored model takes precedence over a newly selected subagent's default model. Therefore, when escalating from `@fast-worker` to `@mid-surgeon` or `@deep-surgeon`, **start a new task (omit `task_id`)** and pass the previous findings, failed hypotheses, changed files, and validation evidence in the new brief.
 
 ## 3. Choosing the Right Parallel Isolation Mechanism
 
 | Scenario | Recommended Mechanism | Workspace & Git Scope | Coordination & Git Rules |
 |---|---|---|---|
-| **Tightly coupled subtasks within the current branch** | **`task` Subagents** (`@fast-worker`, `@mid-surgeon`, `@deep-surgeon`) | Shared working tree & Git index with parent (separate transcript only) | Assign strictly disjoint writable paths, use `board_post` / `board_read`, and keep `git add` / `git stash` / `git commit` strictly in the parent session |
-| **User-requested parallel features or competing implementations** | **Agent Manager Worktrees** (`agent_manager` with `mode: "worktree"`, or `Cmd+Shift+N`) | Isolated `.kilo/worktrees/` checkout, branch, and terminal (runs primary agents like `code` or `code-pinned`) | Coordinate via `agent_manager` (`action: "list"` / `"prompt"`), commits, and the PR diff panel |
-| **Parallel read-only discovery** | **Background Scouts** (`@explore`, `@file-picker`, `@local-scout` with `background: true`) | Read-only access to current workspace | Automatic result injection into parent session on completion |
+| **Tightly coupled subtasks with disjoint files** | **`task` Subagents** (`@fast-worker`, `@mid-surgeon`, `@deep-surgeon`, `@general`) | Shared working tree & Git index with parent (separate transcript only) | Assign strictly disjoint writable paths, use `board_post` / `board_read`, and keep `git add` / `git stash` / `git commit` in the parent session |
+| **Independent mutations touching shared configs, lockfiles, or overlapping modules** | **Agent Manager Worktrees** (`agent_manager` with `mode: "worktree"`, or `Cmd+Shift+N`) | Isolated `.kilo/worktrees/` checkout, branch, and terminal (runs primary agents like `code`, `code-jev`, or `code-pinned`) | Coordinate via `agent_manager` (`action: "list"` / `"prompt"`), commits, and the PR diff panel |
+| **Parallel read-only discovery & doc synthesis** | **Background Scouts** (`@explore`, `@file-picker`, `@doc-summarizer`, `@local-scout` with `background: true`) | Read-only access to current workspace / `.kilo/logs` / `/tmp` | Automatic concise result injection into parent session on completion |
