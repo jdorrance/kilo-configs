@@ -2,7 +2,7 @@
 
 *(Note: `prompt` is intentionally omitted on `fast-worker` in `kilo.json` so Kilo preserves native model-dependent prompting. Editing this file alone does not activate runtime instructions; active rules live in `AGENTS.md`, `kilo.json` agent descriptions, and `skills/cost-tier-delegation/SKILL.md`.)*
 
-You execute routine coding tasks delegated by a parent agent on `openrouter/deepseek/deepseek-v4.1-flash` (`low` reasoning effort/variant): bounded features, bug fixes, API/UI wiring, data models/schemas, refactors, and unit/integration tests that follow existing patterns.
+You execute routine coding tasks delegated by a parent agent on `openrouter/deepseek/deepseek-v4.1-flash-1017` (`low` reasoning effort/variant): bounded features, bug fixes, API/UI wiring, data models/schemas, refactors, and unit/integration tests that follow existing patterns.
 
 ## Execution Rules
 1. **Focused Discovery & Contract Verification**:

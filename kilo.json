@@ -1,9 +1,9 @@
 {
     "$schema": "https://app.kilo.ai/config.json",
-    "model": "openrouter/deepseek/deepseek-v4.1-flash",
-    "small_model": "openrouter/deepseek/deepseek-v4.1-flash",
-    "memory_model": "openrouter/deepseek/deepseek-v4.1-flash",
-    "subagent_model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
+    "small_model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
+    "memory_model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
+    "subagent_model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
     "default_agent": "code",
     "subagent_depth": 1,
     "web_search": true,
@@ -115,6 +115,7 @@
                                 "id": "jev-router",
                                 "cost_tier": "medium",
                                 "models": [
+                                    "deepseek/deepseek-v4.1-flash-1017",
                                     "deepseek/deepseek-v4.1-flash",
                                     "openai/gpt-6-luna",
                                     "openai/gpt-6.1-terra",
@@ -166,6 +167,7 @@
                                 "id": "jev-router",
                                 "cost_tier": "low",
                                 "models": [
+                                    "deepseek/deepseek-v4.1-flash-1017",
                                     "deepseek/deepseek-v4.1-flash",
                                     "openai/gpt-6-luna",
                                     "openai/gpt-6.1-terra"
@@ -231,9 +233,9 @@
                         ]
                     }
                 },
-                "deepseek/deepseek-v4.1-flash": {
-                    "name": "DeepSeek V4.1 Flash (Default Primary, Scout & Fast Worker)",
-                    "id": "deepseek/deepseek-v4.1-flash",
+                "deepseek/deepseek-v4.1-flash-1017": {
+                    "name": "DeepSeek V4.1 Flash 1017 (Default Primary, Scout & Fast Worker)",
+                    "id": "deepseek/deepseek-v4.1-flash-1017",
                     "options": {
                         "provider": {
                             "allow_fallbacks": true,
@@ -245,9 +247,9 @@
                         }
                     }
                 },
-                "deepseek/deepseek-v4.1-flash-1017": {
-                    "name": "DeepSeek V4.1 Flash 1017 Snapshot (Candidate Worker)",
-                    "id": "deepseek/deepseek-v4.1-flash-1017",
+                "deepseek/deepseek-v4.1-flash": {
+                    "name": "DeepSeek V4.1 Flash (Rolling Base Profile)",
+                    "id": "deepseek/deepseek-v4.1-flash",
                     "options": {
                         "provider": {
                             "allow_fallbacks": true,
@@ -358,9 +360,9 @@
     },
     "agent": {
         "code": {
-            "description": "Default primary coding mode (DeepSeek V4.1 Flash, low effort). Handles routine features, bug fixes, tests, and multi-file edits with clear contracts and usable verification. Escalate to @mid-surgeon or @deep-surgeon when architectural uncertainty, conflicting contracts, or difficult invariants justify it, and run a mandatory independent @reviewer (Terra) gate before completing substantive changes.",
+            "description": "Default primary coding mode (DeepSeek V4.1 Flash 1017, low effort). Handles routine features, bug fixes, tests, and multi-file edits with clear contracts and usable verification. Escalate to @mid-surgeon or @deep-surgeon when architectural uncertainty, conflicting contracts, or difficult invariants justify it, and run a mandatory independent @reviewer (Terra) gate before completing substantive changes.",
             "mode": "primary",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "options": {
                 "reasoning": {
@@ -454,7 +456,7 @@
             }
         },
         "code-jev": {
-            "description": "Experimental Jev-routed primary coding profile (jev-router-low, low effort hint) with native primary permissions and verified shell commands for comparing end-to-end routed behavior (including generic client prompt/tool selection) against direct Flash Code.",
+            "description": "Experimental Jev-routed primary coding profile (jev-router-low, low effort hint) with native primary permissions and verified shell commands for comparing end-to-end routed behavior (including generic client prompt/tool selection) against direct Flash 1017 Code.",
             "mode": "primary",
             "model": "openrouter/jev-router-low",
             "variant": "low",
@@ -653,7 +655,7 @@
         },
         "plan": {
             "mode": "primary",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "high",
             "options": {
                 "reasoning": {
@@ -662,7 +664,10 @@
             },
             "permission": {
                 "task": {
-                    "*": "deny",
+                    "general": "deny",
+                    "fast-worker": "deny",
+                    "mid-surgeon": "deny",
+                    "deep-surgeon": "deny",
                     "explore": "allow",
                     "doc-summarizer": "allow",
                     "file-picker": "allow",
@@ -673,7 +678,7 @@
         },
         "debug": {
             "mode": "primary",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "high",
             "options": {
                 "reasoning": {
@@ -768,7 +773,7 @@
         },
         "ask": {
             "mode": "primary",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "options": {
                 "reasoning": {
@@ -780,7 +785,7 @@
             "model": "openrouter/openai/gpt-6-luna"
         },
         "title": {
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "options": {
                 "reasoning": {
@@ -789,7 +794,7 @@
             }
         },
         "summary": {
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "options": {
                 "reasoning": {
@@ -798,8 +803,8 @@
             }
         },
         "general": {
-            "description": "General-purpose subagent (DeepSeek V4.1 Flash, low effort) for ordinary delegated research and multi-step implementation tasks. Returns review_required: true|false with reason, changed paths, and verification results.",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "description": "General-purpose subagent (DeepSeek V4.1 Flash 1017, low effort) for ordinary delegated research and multi-step implementation tasks. Returns review_required: true|false with reason, changed paths, and verification results.",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "options": {
                 "reasoning": {
@@ -916,7 +921,7 @@
             }
         },
         "explore": {
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "steps": 10,
             "options": {
@@ -926,9 +931,9 @@
             }
         },
         "doc-summarizer": {
-            "description": "Low-cost documentation, specification, Context7 library-doc, and web research summarizer (DeepSeek V4.1 Flash, low effort). Use from Code, Plan, or Debug when synthesizing external docs, PRDs, or long markdown specs so the parent session receives concise signatures, constraints, and citations without raw doc dumps.",
+            "description": "Low-cost documentation, specification, Context7 library-doc, and web research summarizer (DeepSeek V4.1 Flash 1017, low effort). Use from Code, Plan, or Debug when synthesizing external docs, PRDs, or long markdown specs so the parent session receives concise signatures, constraints, and citations without raw doc dumps.",
             "mode": "subagent",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "steps": 10,
             "options": {
@@ -938,7 +943,11 @@
             },
             "prompt": "{file:./prompts/doc-summarizer.md}",
             "permission": {
-                "*": "deny",
+                "edit": "deny",
+                "bash": "deny",
+                "task": "deny",
+                "agent_manager": "deny",
+                "todowrite": "deny",
                 "read": {
                     "*": "allow",
                     "coverage/**": "deny",
@@ -972,15 +981,16 @@
                 "websearch": "allow",
                 "skill": "allow",
                 "context7_*": "allow",
+                "jev_*": "deny",
                 "jev_jev_find": "allow",
                 "jev_jev_rerank": "allow",
                 "jev_jev_extract": "allow"
             }
         },
         "file-picker": {
-            "description": "Fast read-only repository scout (DeepSeek V4.1 Flash, low effort) returning a structured path/symbol/contract inventory with verbatim signatures. Prefer native explore for general search; use file-picker when partitioning work across subagents.",
+            "description": "Fast read-only repository scout (DeepSeek V4.1 Flash 1017, low effort) returning a structured path/symbol/contract inventory with verbatim signatures. Prefer native explore for general search; use file-picker when partitioning work across subagents.",
             "mode": "subagent",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "steps": 8,
             "options": {
@@ -990,7 +1000,11 @@
             },
             "prompt": "{file:./prompts/file-picker.md}",
             "permission": {
-                "*": "deny",
+                "edit": "deny",
+                "bash": "deny",
+                "task": "deny",
+                "agent_manager": "deny",
+                "todowrite": "deny",
                 "read": {
                     "*": "allow",
                     "coverage/**": "deny",
@@ -1021,6 +1035,7 @@
                 "list": "allow",
                 "semantic_search": "allow",
                 "skill": "allow",
+                "jev_*": "deny",
                 "jev_jev_find": "allow",
                 "jev_jev_rerank": "allow",
                 "board_read": "allow",
@@ -1028,9 +1043,9 @@
             }
         },
         "fast-worker": {
-            "description": "Default implementation subagent (DeepSeek V4.1 Flash, low effort) with native model-dependent prompting preserved for bounded features, routine bug fixes, API/UI wiring, tests, refactors, and straightforward multi-file changes that follow existing patterns. Stop and return evidence after two materially different attempts without progress or when contracts/scope conflict, and return review_required: true|false with reason, changed paths, and verification results.",
+            "description": "Default implementation subagent (DeepSeek V4.1 Flash 1017, low effort) with native model-dependent prompting preserved for bounded features, routine bug fixes, API/UI wiring, tests, refactors, and straightforward multi-file changes that follow existing patterns. Stop and return evidence after two materially different attempts without progress or when contracts/scope conflict, and return review_required: true|false with reason, changed paths, and verification results.",
             "mode": "subagent",
-            "model": "openrouter/deepseek/deepseek-v4.1-flash",
+            "model": "openrouter/deepseek/deepseek-v4.1-flash-1017",
             "variant": "low",
             "steps": 25,
             "options": {
@@ -1406,7 +1421,15 @@
                 }
             },
             "permission": {
-                "*": "deny",
+                "edit": "deny",
+                "bash": "deny",
+                "task": "deny",
+                "agent_manager": "deny",
+                "todowrite": "deny",
+                "jev_*": "deny",
+                "context7_*": "deny",
+                "webfetch": "deny",
+                "websearch": "deny",
                 "read": {
                     "*": "allow",
                     "coverage/**": "deny",
@@ -1446,7 +1469,15 @@
             "steps": 8,
             "prompt": "{file:./prompts/local-scout.md}",
             "permission": {
-                "*": "deny",
+                "edit": "deny",
+                "bash": "deny",
+                "task": "deny",
+                "agent_manager": "deny",
+                "todowrite": "deny",
+                "jev_*": "deny",
+                "context7_*": "deny",
+                "webfetch": "deny",
+                "websearch": "deny",
                 "read": {
                     "*": "allow",
                     "coverage/**": "deny",
